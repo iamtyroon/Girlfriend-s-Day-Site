@@ -12,6 +12,7 @@ const useTypewriter = (text: string, speed = 100, start = false) => {
     const [displayText, setDisplayText] = useState('');
     
     useEffect(() => {
+        setDisplayText(''); // Reset on text change
         if (start) {
             let i = 0;
             const typing = setInterval(() => {
@@ -29,20 +30,100 @@ const useTypewriter = (text: string, speed = 100, start = false) => {
     return displayText;
 };
 
-// --- Guide Popup Component ---
-const GuidePopup = ({ onStart }: { onStart: () => void }) => {
+// --- Onboarding Bear Component ---
+const OnboardingBear = ({ onStart, onComplete }: { onStart: () => void, onComplete: () => void }) => {
     const [step, setStep] = useState(0);
-    const messages = [
-        "Welcome, Praise! I'm your guide on this little adventure.",
-        "Tes has created this world just for you, filled with memories and love.",
-        "Click the 'START' button to begin. I'll be here if you need me!"
+    const [isActive, setIsActive] = useState(false);
+
+    const steps = [
+        {
+            text: "Welcome, Praise! I'm your guide on this little adventure created by Tes.",
+            button: "Let's Go!",
+            action: () => {
+                onStart();
+                setStep(1);
+            }
+        },
+        {
+            text: "This is the 'Stage of Us'. It's all about songs that tell our story. Try clicking the arrow to see the next one!",
+            highlight: "stage-of-us-carousel", // We will add this ID
+        },
+        {
+            text: "Great! Now, click the 'Our Soundtrack' button to reveal a list of our special songs.",
+            highlight: "soundtrack-button",
+        },
+        {
+            text: "Perfect! Now, let's scroll down to see the 'Soft Side of You' section.",
+            highlight: "soft-side",
+        },
+        {
+            text: "This space is all about your adorable quirks. Now, let's find where you bloom...",
+            highlight: "where-you-bloom",
+        },
+        {
+            text: "And here's a special note. You can continue exploring on your own now. Enjoy the rest of the world Tes built for you!",
+            button: "Finish",
+            action: () => {
+                onComplete();
+            }
+        },
     ];
 
-    const handleNext = () => setStep(s => s + 1);
+    const currentStep = steps[step];
+    const typedText = useTypewriter(currentStep.text, 50, isActive);
+    
+    useEffect(() => {
+       const timer = setTimeout(() => setIsActive(true), 500);
+       return () => clearTimeout(timer);
+    }, []);
 
-    if (step >= messages.length) {
-        return null;
+    const handleNextStep = () => {
+        if(currentStep.action) {
+            currentStep.action();
+        } else {
+            setStep(s => s + 1);
+        }
     }
+    
+    useEffect(() => {
+        const handleInteraction = () => {
+             // Only advance if there's no button to click
+            if (!steps[step].button && steps[step+1]) {
+                setStep(s => s + 1);
+            }
+        };
+
+        if(step === 1) {
+            document.querySelector('.next-button')?.addEventListener('click', handleInteraction);
+        }
+        if (step === 2) {
+            document.getElementById('soundtrack-button')?.addEventListener('click', handleInteraction);
+        }
+        if (step === 3 || step === 4) {
+             const observer = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting) {
+                        handleInteraction();
+                        observer.unobserve(entry.target);
+                    }
+                },
+                { threshold: 0.5 }
+            );
+            const target = document.getElementById(steps[step].highlight!);
+            if(target) observer.observe(target);
+
+            return () => {
+                if(target) observer.unobserve(target);
+            }
+        }
+
+        return () => {
+             if(step === 1) document.querySelector('.next-button')?.removeEventListener('click', handleInteraction);
+             if (step === 2) document.getElementById('soundtrack-button')?.removeEventListener('click', handleInteraction);
+        }
+
+    }, [step]);
+
 
     return (
         <Dialog open={true}>
@@ -51,24 +132,23 @@ const GuidePopup = ({ onStart }: { onStart: () => void }) => {
                     <div className="flex justify-center mb-4">
                         <Image src="/assets/icons/teddy-bear.png" alt="Guide Bear" width={100} height={100} data-ai-hint="teddy bear" />
                     </div>
-                    <DialogTitle className="text-center">{messages[step]}</DialogTitle>
+                    <DialogTitle className="text-center min-h-[100px]">{typedText}</DialogTitle>
                 </DialogHeader>
-                <DialogFooter>
-                    {step < messages.length - 1 ? (
-                        <Button onClick={handleNext} className="bg-accent text-accent-foreground border-2 border-foreground hover:bg-primary">Next</Button>
-                    ) : (
-                        <Button onClick={onStart} className="bg-accent text-accent-foreground border-2 border-foreground hover:bg-primary">Close</Button>
-                    )}
-                </DialogFooter>
+                {currentStep.button && (
+                    <DialogFooter>
+                        <Button onClick={handleNextStep} className="bg-accent text-accent-foreground border-2 border-foreground hover:bg-primary">{currentStep.button}</Button>
+                    </DialogFooter>
+                )}
             </DialogContent>
         </Dialog>
     );
 };
 
+
 // --- Landing Scene Component ---
 const LandingScene = ({ onStart }: { onStart: () => void }) => {
     const [startTyping, setStartTyping] = useState(false);
-    const titleText = useTypewriter("Happy Girlfriend’s Day, Praise ❤️", 150, startTyping);
+    const titleText = useTypewriter("Happy Girlfriend’s Day, Praise 😊❤️", 150, startTyping);
 
     useEffect(() => {
         const timer = setTimeout(() => setStartTyping(true), 1000);
@@ -85,13 +165,18 @@ const LandingScene = ({ onStart }: { onStart: () => void }) => {
 };
 
 export default function CanonEvent() {
-    const [scene, setScene] = useState<'guide' | 'landing' | 'main'>('guide');
+    const [scene, setScene] = useState<'onboarding' | 'landing' | 'main'>('onboarding');
 
-    const handleStart = () => setScene('landing');
+    const handleStartOnboarding = () => setScene('landing');
     const handleEnterMain = () => setScene('main');
+    const handleCompleteOnboarding = () => {
+        // Here you can decide what to do when onboarding is done.
+        // For now, we'll just let the user explore freely.
+    }
 
-    if (scene === 'guide') {
-        return <GuidePopup onStart={handleStart} />;
+
+    if (scene === 'onboarding') {
+        return <OnboardingBear onStart={handleStartOnboarding} onComplete={handleCompleteOnboarding} />;
     }
 
     if (scene === 'landing') {
@@ -148,7 +233,7 @@ const MainContent = () => {
 
         return () => {
             if (letterRef.current) {
-                observer.unobserve(letterRef.current);
+                // observer.unobserve(letterRef.current);
             }
         };
     }, []);
@@ -186,7 +271,7 @@ const MainContent = () => {
                 <section id="stage-of-us" className="py-12 px-4 border-b-2 border-secondary">
                     <h2 className="text-2xl text-accent mb-6">The Stage of Us</h2>
                     <Image src="/assets/images/hamilton.png" alt="Hamilton Sprite" width={150} height={150} className="mx-auto mb-6" data-ai-hint="pixel art" />
-                    <div className="relative w-full max-w-lg mx-auto overflow-hidden">
+                    <div id="stage-of-us-carousel" className="relative w-full max-w-lg mx-auto overflow-hidden">
                         <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${carouselIndex * 100}%)` }}>
                             {carouselItems.map((item, index) => (
                                 <div key={index} className="flex-shrink-0 w-full p-5 bg-card border-2 border-primary">
@@ -195,10 +280,10 @@ const MainContent = () => {
                                 </div>
                             ))}
                         </div>
-                        <Button onClick={() => handleCarousel('prev')} className="absolute top-1/2 -translate-y-1/2 left-0 bg-primary rounded-full p-2 h-10 w-10"><ChevronLeft /></Button>
-                        <Button onClick={() => handleCarousel('next')} className="absolute top-1/2 -translate-y-1/2 right-0 bg-primary rounded-full p-2 h-10 w-10"><ChevronRight /></Button>
+                        <Button onClick={() => handleCarousel('prev')} className="absolute top-1/2 -translate-y-1/2 left-0 bg-primary rounded-full p-2 h-10 w-10 prev-button"><ChevronLeft /></Button>
+                        <Button onClick={() => handleCarousel('next')} className="absolute top-1/2 -translate-y-1/2 right-0 bg-primary rounded-full p-2 h-10 w-10 next-button"><ChevronRight /></Button>
                     </div>
-                    <Button onClick={() => setShowSoundtrack(!showSoundtrack)} className="bg-accent text-accent-foreground mt-6">Our Soundtrack</Button>
+                    <Button id="soundtrack-button" onClick={() => setShowSoundtrack(!showSoundtrack)} className="bg-accent text-accent-foreground mt-6">Our Soundtrack</Button>
                     {showSoundtrack && (
                         <div className="mt-4 p-4 bg-card rounded-lg max-w-md mx-auto">
                            <ul>
