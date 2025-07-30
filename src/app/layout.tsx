@@ -1,7 +1,12 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import PixelTrail from '@/components/pixel-trail';
+import dynamic from 'next/dynamic';
+
+const PixelTrail = dynamic(() => import('@/components/pixel-trail'), {
+  ssr: false,
+});
+
 
 export const metadata: Metadata = {
   title: 'A Canon Event',

@@ -2,20 +2,12 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import * as THREE from 'three';
-
-const Pixel = ({ color, ...props } : {color: string}) => (
-  <mesh {...props}>
-    <boxGeometry args={[0.08, 0.08, 0.08]} />
-    <meshStandardMaterial color={color} />
-  </mesh>
-);
 
 const Pixels = ({ count, color } : {count: number, color: string}) => {
   const mesh = useRef<THREE.InstancedMesh>(null!);
   const { size, viewport } = useThree();
-  const aspect = size.width / viewport.width;
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   const particles = useMemo(() => {
@@ -33,6 +25,7 @@ const Pixels = ({ count, color } : {count: number, color: string}) => {
   }, [count]);
 
   useFrame((state) => {
+    if (!mesh.current) return;
     particles.forEach((particle, i) => {
       let { t, factor, speed, xFactor, yFactor, zFactor } = particle;
       t = particle.t += speed / 2;
