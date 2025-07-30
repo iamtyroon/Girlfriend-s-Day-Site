@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Flower, GitBranch, Heart, MessageCircle, Music, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flower, GitBranch, Heart, MessageCircle, Music, Star, Cog } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import PixelTrail from '@/components/pixel-trail';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 
 // --- Typewriter Hook ---
@@ -167,6 +170,7 @@ const LandingScene = ({ onStart }: { onStart: () => void }) => {
 
 export default function CanonEvent() {
     const [scene, setScene] = useState<'onboarding' | 'landing' | 'main'>('onboarding');
+    const [showPixelTrail, setShowPixelTrail] = useState(true);
 
     const handleStartOnboarding = () => setScene('landing');
     const handleEnterMain = () => setScene('main');
@@ -182,7 +186,12 @@ export default function CanonEvent() {
         return <LandingScene onStart={handleEnterMain} />;
     }
 
-    return <MainContent />;
+    return (
+        <>
+            {showPixelTrail && <PixelTrail />}
+            <MainContent showPixelTrail={showPixelTrail} setShowPixelTrail={setShowPixelTrail} />
+        </>
+    );
 }
 
 // --- Dock Navigation ---
@@ -210,7 +219,7 @@ const Dock = ({ navItems }: { navItems: Array<{ id: string; title: string; icon:
 );
 
 // --- Main Content ---
-const MainContent = () => {
+const MainContent = ({ showPixelTrail, setShowPixelTrail }: { showPixelTrail: boolean, setShowPixelTrail: (show: boolean) => void }) => {
     const [showSoundtrack, setShowSoundtrack] = useState(false);
     const [arcadeContent, setArcadeContent] = useState('');
     const letterRef = useRef<HTMLDivElement>(null);
@@ -236,6 +245,7 @@ const MainContent = () => {
         { id: "letter", title: "A Note for You", icon: MessageCircle },
         { id: "memory-arcade", title: "Memory Arcade", icon: GitBranch },
         { id: "gallery-wall", title: "Gallery Wall", icon: Star },
+        { id: "settings", title: "Settings", icon: Cog },
     ];
     
     useEffect(() => {
@@ -390,7 +400,22 @@ const MainContent = () => {
                         ))}
                     </div>
                 </section>
+
+                <section id="settings" className="py-16 px-4">
+                    <h2 className="text-3xl font-bold text-accent mb-8">Settings</h2>
+                    <Card className="bg-card border-primary p-5 w-full max-w-md mx-auto">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="pixel-trail-switch" className="text-lg">Pixel Trail</Label>
+                            <Switch
+                                id="pixel-trail-switch"
+                                checked={showPixelTrail}
+                                onCheckedChange={setShowPixelTrail}
+                            />
+                        </div>
+                    </Card>
+                </section>
             </main>
             <Dock navItems={navItems} />
         </div>
     );
+};
