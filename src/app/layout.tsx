@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import PixelTrail from '@/components/pixel-trail';
 
 export const metadata: Metadata = {
   title: 'A Canon Event',
@@ -20,6 +21,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
+        <PixelTrail />
         {children}
         <Toaster />
       </body>
