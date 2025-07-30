@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Image from 'next/image';
-import { Music, Heart, Flower, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 // --- Typewriter Hook ---
 const useTypewriter = (text: string, speed = 100, start = false) => {
@@ -188,7 +189,6 @@ export default function CanonEvent() {
 
 // --- Main Content ---
 const MainContent = () => {
-    const [carouselIndex, setCarouselIndex] = useState(0);
     const [showSoundtrack, setShowSoundtrack] = useState(false);
     const [arcadeContent, setArcadeContent] = useState('');
     const letterRef = useRef<HTMLDivElement>(null);
@@ -206,15 +206,6 @@ const MainContent = () => {
       { title: "What We Binge", content: "Bones, Love, Death & Robots, Bojack, Your Name, Love & Other Drugs" },
       { title: "Canon Events", content: "Vivy, JoJo’s, Red String Theory, Killing Eve" },
     ];
-
-    const handleCarousel = (direction: 'next' | 'prev') => {
-        const totalItems = carouselItems.length;
-        if (direction === 'next') {
-            setCarouselIndex((prev) => (prev + 1) % totalItems);
-        } else {
-            setCarouselIndex((prev) => (prev - 1 + totalItems) % totalItems);
-        }
-    };
     
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -271,21 +262,25 @@ const MainContent = () => {
                 <section id="stage-of-us" className="py-12 px-4 border-b-2 border-secondary">
                     <h2 className="text-2xl text-accent mb-6">The Stage of Us</h2>
                     <Image src="/assets/images/hamilton.png" alt="Hamilton Sprite" width={150} height={150} className="mx-auto mb-6" data-ai-hint="pixel art" />
-                    <div id="stage-of-us-carousel" className="relative w-full max-w-lg mx-auto overflow-hidden">
-                        <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${carouselIndex * 100}%)` }}>
+                    <Carousel id="stage-of-us-carousel" className="w-full max-w-lg mx-auto" >
+                        <CarouselContent>
                             {carouselItems.map((item, index) => (
-                                <div key={index} className="flex-shrink-0 w-full p-5 bg-card border-2 border-primary">
-                                    <h3 className="font-bold">{item.title}</h3>
-                                    <p className="mt-2 text-sm">{item.quote}</p>
-                                </div>
+                                <CarouselItem key={index}>
+                                     <Card className="bg-card border-primary text-foreground">
+                                        <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
+                                            <h3 className="font-bold text-lg">{item.title}</h3>
+                                            <p className="mt-2 text-sm">{item.quote}</p>
+                                        </CardContent>
+                                    </Card>
+                                </CarouselItem>
                             ))}
-                        </div>
-                        <Button onClick={() => handleCarousel('prev')} className="absolute top-1/2 -translate-y-1/2 left-0 bg-primary rounded-full p-2 h-10 w-10 prev-button"><ChevronLeft /></Button>
-                        <Button onClick={() => handleCarousel('next')} className="absolute top-1/2 -translate-y-1/2 right-0 bg-primary rounded-full p-2 h-10 w-10 next-button"><ChevronRight /></Button>
-                    </div>
+                        </CarouselContent>
+                         <CarouselPrevious className="prev-button" />
+                         <CarouselNext className="next-button"/>
+                    </Carousel>
                     <Button id="soundtrack-button" onClick={() => setShowSoundtrack(!showSoundtrack)} className="bg-accent text-accent-foreground mt-6">Our Soundtrack</Button>
                     {showSoundtrack && (
-                        <div className="mt-4 p-4 bg-card rounded-lg max-w-md mx-auto">
+                        <Card className="mt-4 p-4 bg-card rounded-lg max-w-md mx-auto">
                            <ul>
                                 {carouselItems.map((item) => (
                                     <li key={item.title}>
@@ -293,7 +288,7 @@ const MainContent = () => {
                                     </li>
                                 ))}
                             </ul>
-                        </div>
+                        </Card>
                     )}
                 </section>
 
@@ -336,9 +331,9 @@ const MainContent = () => {
 
                 <section id="letter" ref={letterRef} className="py-12 px-4 border-b-2 border-secondary">
                     <h2 className="text-2xl text-accent mb-6">A Note I Never Sent (But Should Have Every Day)</h2>
-                    <div className="bg-card border-2 border-primary p-5 w-full max-w-2xl mx-auto min-h-[200px]">
+                     <Card className="bg-card border-primary p-5 w-full max-w-2xl mx-auto min-h-[200px]">
                         <p className="text-left whitespace-pre-wrap text-lg leading-relaxed">{letterText}</p>
-                    </div>
+                    </Card>
                     <Button className="bg-accent text-accent-foreground mt-6">I'd still choose you.</Button>
                 </section>
 
@@ -351,9 +346,9 @@ const MainContent = () => {
                             </Button>
                         ))}
                     </div>
-                    <div className="bg-card border-2 border-primary p-5 min-h-[100px] w-full max-w-2xl mx-auto">
+                     <Card className="bg-card border-primary p-5 min-h-[100px] w-full max-w-2xl mx-auto">
                         {arcadeContent}
-                    </div>
+                    </Card>
                 </section>
 
                 <section id="gallery-wall" className="py-12 px-4">
@@ -364,12 +359,12 @@ const MainContent = () => {
                           { caption: "Golden Retriever approved ✔", image: "/assets/images/pot.jpeg" },
                           { caption: "This AI is in love.", image: "/assets/images/pot.jpeg" }
                         ].map((photo, index) => (
-                           <div key={index} className="relative border-4 border-primary">
-                               <Image src={photo.image} alt={`Praise ${index + 1}`} width={300} height={400} className="pixelated w-full" data-ai-hint="woman portrait" />
-                               <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white p-2 text-sm">
+                           <Card key={index} className="relative border-4 border-primary overflow-hidden">
+                               <Image src={photo.image} alt={`Praise ${index + 1}`} width={300} height={400} className="pixelated w-full h-full object-cover" data-ai-hint="woman portrait" />
+                               <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 text-sm">
                                    <p>{photo.caption}</p>
                                </div>
-                           </div>
+                           </Card>
                         ))}
                     </div>
                 </section>
@@ -377,3 +372,5 @@ const MainContent = () => {
         </div>
     );
 };
+
+    
