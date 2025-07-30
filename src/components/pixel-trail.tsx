@@ -2,7 +2,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useRef, useMemo, useEffect, useState } from 'react';
+import { useRef, useMemo } from 'react';
 import * as THREE from 'three';
 
 const Pixels = ({ count, color } : {count: number, color: string}) => {
