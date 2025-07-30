@@ -1,5 +1,5 @@
-import HelloDisplay from '@/components/hello-display';
+import CanonEvent from '@/components/canon-event';
 
 export default function Home() {
-  return <HelloDisplay />;
+  return <CanonEvent />;
 }
