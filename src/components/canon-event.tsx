@@ -49,7 +49,7 @@ const GuidePopup = ({ onStart }: { onStart: () => void }) => {
             <DialogContent className="bg-card border-primary text-foreground w-[80%] max-w-[500px]">
                 <DialogHeader>
                     <div className="flex justify-center mb-4">
-                        <Image src="https://placehold.co/100x100.png" alt="Guide Bear" width={100} height={100} data-ai-hint="teddy bear" />
+                        <Image src="/assets/icons/teddy-bear.png" alt="Guide Bear" width={100} height={100} data-ai-hint="teddy bear" />
                     </div>
                     <DialogTitle className="text-center">{messages[step]}</DialogTitle>
                 </DialogHeader>
@@ -77,7 +77,7 @@ const LandingScene = ({ onStart }: { onStart: () => void }) => {
 
     return (
         <div className="h-screen flex flex-col justify-center items-center text-center p-4">
-            <Image src="https://placehold.co/200x200.png" alt="Pixel Bouquet" width={200} height={200} data-ai-hint="pixel bouquet" />
+            <Image src="/assets/gifs/bouquet.gif" alt="Pixel Bouquet" width={200} height={200} data-ai-hint="pixel bouquet" />
             <h1 className="text-3xl md:text-4xl mt-5 min-h-[4rem]">{titleText}</h1>
             <Button onClick={onStart} className="bg-primary text-primary-foreground border-2 border-foreground mt-5 animate-fade-in animation-delay-3000">START</Button>
         </div>
@@ -111,9 +111,9 @@ const MainContent = () => {
     const letterText = useTypewriter("I feel like I’ve known you for ages. You were sent to me. Meeting you is probably a canon event. I don’t know if you’re from the future or just my favorite glitch in the simulation, but either way — I’m glad it’s you.", 100, startLetter);
 
     const carouselItems = [
-        { title: "My Shot - Hamilton", quote: `"I am not throwing away my shot!"` },
-        { title: "Freefall - Rainbow Kitten Surprise", quote: `"You're the only one I see"` },
-        { title: "Love Like You - Steven Universe", quote: `"If I could begin to be, half of what you think of me..."` },
+        { title: "My Shot - Hamilton", quote: `"I am not throwing away my shot!"`, audio: '/assets/audio/hamilton-my-shot-lyrics-128-ytshorts.savetube.me.mp3' },
+        { title: "Freefall - Rainbow Kitten Surprise", quote: `"You're the only one I see"`, audio: '/assets/audio/rainbow-kitten-surprise-it-s-called-freefall-official-video-128-ytshorts.savetube.me.mp3' },
+        { title: "Love Like You - Steven Universe", quote: `"If I could begin to be, half of what you think of me..."`, audio: '/assets/audio/love-like-you-rebecca-sugar-lyrics-128-ytshorts.savetube.me.mp3' },
     ];
     
     const arcadeCartridges = [
@@ -152,22 +152,40 @@ const MainContent = () => {
             }
         };
     }, []);
+    
+    useEffect(() => {
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    document.body.style.filter = 'hue-rotate(90deg)';
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, []);
 
     return (
         <div className="bg-background text-foreground min-h-screen">
             <nav className="sticky top-0 bg-card py-2 z-50 border-b border-border">
                 <ul className="flex justify-center space-x-8">
-                    <li><a href="#stage-of-us"><Music className="hover:scale-125 transition-transform" /></a></li>
-                    <li><a href="#soft-side"><Heart className="hover:scale-125 transition-transform" /></a></li>
-                    <li><a href="#where-you-bloom"><Flower className="hover:scale-125 transition-transform" /></a></li>
-                    <li><a href="#letter"><MessageSquare className="hover:scale-125 transition-transform" /></a></li>
+                    <li><a href="#stage-of-us"><Image src="/assets/icons/music-notes.png" alt="Music" width={40} height={40} className="hover:scale-125 transition-transform" /></a></li>
+                    <li><a href="#soft-side"><Image src="/assets/icons/teddy-bear.png" alt="Teddy Bear" width={40} height={40} className="hover:scale-125 transition-transform" /></a></li>
+                    <li><a href="#where-you-bloom"><Image src="/assets/icons/flower.png" alt="Flower" width={40} height={40} className="hover:scale-125 transition-transform" /></a></li>
+                    <li><a href="#letter"><Image src="/assets/icons/chat-bubble.png" alt="Letter" width={40} height={40} className="hover:scale-125 transition-transform" /></a></li>
                 </ul>
             </nav>
 
             <main className="text-center">
                 <section id="stage-of-us" className="py-12 px-4 border-b-2 border-secondary">
                     <h2 className="text-2xl text-accent mb-6">The Stage of Us</h2>
-                    <Image src="https://placehold.co/150x150.png" alt="Hamilton Sprite" width={150} height={150} className="mx-auto mb-6" data-ai-hint="pixel art" />
+                    <Image src="/assets/images/hamilton.png" alt="Hamilton Sprite" width={150} height={150} className="mx-auto mb-6" data-ai-hint="pixel art" />
                     <div className="relative w-full max-w-lg mx-auto overflow-hidden">
                         <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${carouselIndex * 100}%)` }}>
                             {carouselItems.map((item, index) => (
@@ -183,9 +201,13 @@ const MainContent = () => {
                     <Button onClick={() => setShowSoundtrack(!showSoundtrack)} className="bg-accent text-accent-foreground mt-6">Our Soundtrack</Button>
                     {showSoundtrack && (
                         <div className="mt-4 p-4 bg-card rounded-lg max-w-md mx-auto">
-                            <p>Our first late night chat - 'I feel like I’ve known you for ages.'</p>
-                            <p>Sharing our favorite shows - 'You get me.'</p>
-                            <p>The 'canon event' joke - 'No coincidences. Just you. Just us.'</p>
+                           <ul>
+                                {carouselItems.map((item) => (
+                                    <li key={item.title}>
+                                        <a href={item.audio} target="_blank" rel="noopener noreferrer" className="hover:underline">{item.title}</a>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     )}
                 </section>
@@ -199,7 +221,7 @@ const MainContent = () => {
                             { quote: "Villanelle's got nothing on you, Agent Praise." }
                         ].map((item, index) => (
                             <div key={index} className="relative m-4 group animate-float">
-                                <Image src="https://placehold.co/150x150.png" alt={`Teddy Bear ${index + 1}`} width={150} height={150} data-ai-hint="teddy bear" />
+                                <Image src="/assets/icons/teddy-bear.png" alt={`Teddy Bear ${index + 1}`} width={150} height={150} data-ai-hint="teddy bear" />
                                 <div className="absolute bottom-[160px] left-1/2 -translate-x-1/2 bg-white text-black p-2 rounded-lg text-xs w-40 opacity-0 group-hover:opacity-100 transition-opacity">
                                     {item.quote}
                                 </div>
@@ -217,8 +239,8 @@ const MainContent = () => {
                             "Your quirks are my favorite things. The 'AI from the future' and 'golden retriever energy'... never change."
                         ].map((tip, index) => (
                             <div key={index} className="relative m-4 group">
-                                <Image src="https://placehold.co/150x150.png" alt={`Flower ${index + 1}`} width={150} height={150} className="animate-bloom-flower" data-ai-hint="flower" />
-                                <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-[50px] h-[50px] bg-no-repeat bg-cover transition-transform group-hover:scale-125 group-hover:rotate-12 cursor-pointer" style={{backgroundImage: "url('https://placehold.co/50x50.png')"}} data-ai-hint="butterfly"></div>
+                                <Image src="/assets/icons/flower.png" alt={`Flower ${index + 1}`} width={150} height={150} className="animate-bloom-flower" data-ai-hint="flower" />
+                                <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-[50px] h-[50px] bg-no-repeat bg-cover transition-transform group-hover:scale-125 group-hover:rotate-12 cursor-pointer" style={{backgroundImage: "url('/assets/icons/butterfly.png')"}} data-ai-hint="butterfly"></div>
                                 <div className="absolute bottom-[160px] left-1/2 -translate-x-1/2 bg-white text-black p-2 rounded-lg text-xs w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                                     {tip}
                                 </div>
@@ -253,12 +275,12 @@ const MainContent = () => {
                     <h2 className="text-2xl text-accent mb-6">The Faces of My Favourite Villanelle</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
                         {[
-                          { caption: "Possessed? Nah. Just enchanting." },
-                          { caption: "Golden Retriever approved ✔" },
-                          { caption: "This AI is in love." }
+                          { caption: "Possessed? Nah. Just enchanting.", image: "/assets/images/pot.jpeg"},
+                          { caption: "Golden Retriever approved ✔", image: "/assets/images/pot.jpeg" },
+                          { caption: "This AI is in love.", image: "/assets/images/pot.jpeg" }
                         ].map((photo, index) => (
                            <div key={index} className="relative border-4 border-primary">
-                               <Image src="https://placehold.co/300x400.png" alt={`Praise ${index + 1}`} width={300} height={400} className="pixelated w-full" data-ai-hint="woman portrait" />
+                               <Image src={photo.image} alt={`Praise ${index + 1}`} width={300} height={400} className="pixelated w-full" data-ai-hint="woman portrait" />
                                <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white p-2 text-sm">
                                    <p>{photo.caption}</p>
                                </div>
