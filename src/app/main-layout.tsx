@@ -1,6 +1,7 @@
 "use client"
 import { useState } from 'react';
 import { Dock } from '@/components/dock';
+import PixelTrail from '@/components/pixel-trail';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     const navItems = [
@@ -15,6 +16,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
     return (
         <>
+            <PixelTrail />
             <div className="bg-background text-foreground min-h-screen">
                 <main className="pb-24">
                     {children}
