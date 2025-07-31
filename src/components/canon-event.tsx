@@ -87,7 +87,7 @@ const OnboardingBear = ({ onComplete }: { onComplete: () => void }) => {
 // --- Landing Scene Component ---
 const LandingScene = ({ onStart }: { onStart: () => void }) => {
     const [startTyping, setStartTyping] = useState(false);
-    const titleText = useTypewriter("Happy Girlfriend’s Day, Praise 😊❤️", 150, startTyping);
+    const titleText = useTypewriter("H appy Girlfriend’s Day, Praise 😊❤️", 150, startTyping);
 
     useEffect(() => {
         const timer = setTimeout(() => setStartTyping(true), 1000);

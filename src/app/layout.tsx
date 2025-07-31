@@ -22,10 +22,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <CursorTracker />
-        <GlobalEffectsLoader />
-        {children}
-        <Toaster />
+        <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
+          <CursorTracker />
+          <GlobalEffectsLoader />
+          {children}
+          <Toaster />
+        </div>
       </body>
     </html>
   );
