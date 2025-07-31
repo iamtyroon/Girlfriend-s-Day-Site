@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef } from 'react';
-import PixelTrail from './PixelTrail';
 import CursorTracker from './cursor-tracker';
 import GlobalEffectsLoader from './global-effects-loader';
+import PixelTrail from './PixelTrail';
 import { Toaster } from './ui/toaster';
 
 export default function ClientBody({ children }: { children: React.ReactNode }) {
@@ -13,7 +13,6 @@ export default function ClientBody({ children }: { children: React.ReactNode }) 
     <body className="font-body antialiased">
       <div ref={mainRef} style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
         <PixelTrail
-          eventSource={mainRef}
           gridSize={50}
           trailSize={0.1}
           maxAge={250}

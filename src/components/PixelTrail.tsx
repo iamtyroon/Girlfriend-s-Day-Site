@@ -1,7 +1,8 @@
 "use client"
 /* eslint-disable react/no-unknown-property */
+import { Canvas, CanvasProps, ThreeEvent, useThree } from "@react-three/fiber";
 import React, { useMemo } from "react";
-import { Canvas, useThree, CanvasProps, ThreeEvent } from "@react-three/fiber";
+
 import { shaderMaterial, useTrailTexture } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -37,6 +38,7 @@ interface PixelTrailProps {
   gooeyFilter?: { id: string; strength: number };
   color?: string;
   className?: string;
+  eventSource?: React.RefObject<HTMLElement>;
 }
 
 const GooeyFilter: React.FC<GooeyFilterProps> = ({
@@ -167,7 +169,14 @@ export default function PixelTrail({
   gooeyFilter,
   color = "#ffffff",
   className = "",
+  eventSource,
 }: PixelTrailProps) {
+  const getEventSource = () => {
+    if (eventSource) return eventSource;
+    if (typeof window !== "undefined") return { current: document.body };
+    return undefined;
+  };
+  
   return (
     <>
       {gooeyFilter && (
@@ -176,12 +185,13 @@ export default function PixelTrail({
       <Canvas
         {...canvasProps}
         gl={glProps}
-        className={`absolute z-50 ${className}`}
+        className={`absolute ${className}`}
         style={{
           pointerEvents: "none",
+          zIndex: 9999,
           ...(gooeyFilter ? { filter: `url(#${gooeyFilter.id})` } : {}),
         }}
-        eventSource={typeof window !== 'undefined' ? document.body : undefined}
+        eventSource={getEventSource()}
       >
         <Scene
           gridSize={gridSize}
