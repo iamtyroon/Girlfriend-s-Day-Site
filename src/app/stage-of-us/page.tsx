@@ -20,8 +20,8 @@ export default function StageOfUsPage() {
       <Image
         src="/assets/images/hamilton.png"
         alt="Hamilton Sprite"
-        width={150}
-        height={150}
+        width={225}
+        height={225}
         className="mx-auto mb-6"
         data-ai-hint="pixel art"
       />

@@ -14,7 +14,7 @@ export const Dock = ({ navItems }: { navItems: Array<{ href: string; title: stri
                         <TooltipTrigger asChild>
                             <Link href={item.href} passHref>
                                 <Button variant="ghost" size="icon" className="rounded-full text-foreground hover:bg-accent hover:text-accent-foreground">
-                                    <Image src={item.icon} alt={item.title} width={20} height={20} />
+                                    <Image src={item.icon} alt={item.title} width={30} height={30} />
                                 </Button>
                             </Link>
                         </TooltipTrigger>

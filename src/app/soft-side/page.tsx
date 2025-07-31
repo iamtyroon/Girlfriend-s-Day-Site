@@ -16,8 +16,8 @@ export default function SoftSidePage() {
             <Image
               src="/assets/icons/teddy-bear.png"
               alt={`Teddy Bear ${index + 1}`}
-              width={150}
-              height={150}
+              width={225}
+              height={225}
               data-ai-hint="teddy bear"
             />
             <div className="absolute bottom-[160px] left-1/2 -translate-x-1/2 bg-white text-black p-2 rounded-lg text-xs w-40 opacity-0 group-hover:opacity-100 transition-opacity">

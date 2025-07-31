@@ -16,8 +16,8 @@ export default function WhereYouBloomPage() {
             <Image
               src="/assets/icons/flower.png"
               alt={`Flower ${index + 1}`}
-              width={150}
-              height={150}
+              width={225}
+              height={225}
               className="animate-bloom-flower"
               data-ai-hint="flower"
             />

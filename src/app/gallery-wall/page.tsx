@@ -19,8 +19,8 @@ export default function GalleryWallPage() {
             <Image
               src={photo.image}
               alt={`Praise ${index + 1}`}
-              width={300}
-              height={400}
+              width={450}
+              height={600}
               className="pixelated w-full h-full object-cover"
               data-ai-hint="woman portrait"
             />

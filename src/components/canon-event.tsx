@@ -69,7 +69,7 @@ const OnboardingBear = ({ onComplete }: { onComplete: () => void }) => {
             <DialogContent className="bg-card border-primary text-foreground w-[80%] max-w-[500px]">
                 <DialogHeader>
                     <div className="flex justify-center mb-4">
-                        <Image src="/assets/icons/teddy-bear.png" alt="Guide Bear" width={100} height={100} data-ai-hint="teddy bear" />
+                        <Image src="/assets/icons/teddy-bear.png" alt="Guide Bear" width={150} height={150} data-ai-hint="teddy bear" />
                     </div>
                     <DialogTitle className="text-center min-h-[100px]">{typedText}</DialogTitle>
                 </DialogHeader>
@@ -95,7 +95,7 @@ const LandingScene = ({ onStart }: { onStart: () => void }) => {
 
     return (
         <div className="h-screen flex flex-col justify-center items-center text-center p-4">
-            <Image src="/assets/gifs/bouquet.gif" alt="Pixel Bouquet" width={200} height={200} data-ai-hint="pixel bouquet" />
+            <Image src="/assets/gifs/bouquet.gif" alt="Pixel Bouquet" width={300} height={300} data-ai-hint="pixel bouquet" />
             <h1 className="text-3xl md:text-4xl mt-5 min-h-[4rem]">{titleText}</h1>
             <Button onClick={onStart} className="bg-primary text-primary-foreground border-2 border-foreground mt-5 animate-fade-in animation-delay-3000">START</Button>
         </div>
