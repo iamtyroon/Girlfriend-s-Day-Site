@@ -1,66 +1,194 @@
+/* eslint-disable react/no-unknown-property */
 "use client";
 
-import { useEffect } from 'react';
+import React, { useMemo } from "react";
+import { Canvas, useThree, CanvasProps, ThreeEvent } from "@react-three/fiber";
+import { shaderMaterial, useTrailTexture } from "@react-three/drei";
+import * as THREE from "three";
 
-const PixelTrail = () => {
-  useEffect(() => {
-    const dots: HTMLElement[] = [];
-    const cursor = { x: 0, y: 0 };
+interface GooeyFilterProps {
+  id?: string;
+  strength?: number;
+}
 
-    const handleMouseMove = (e: MouseEvent) => {
-      cursor.x = e.clientX;
-      cursor.y = e.clientY;
-    };
+interface DotMaterialUniforms {
+  resolution: THREE.Vector2;
+  mouseTrail: THREE.Texture | null;
+  gridSize: number;
+  pixelColor: THREE.Color;
+}
 
-    window.addEventListener('mousemove', handleMouseMove);
+interface SceneProps {
+  gridSize: number;
+  trailSize: number;
+  maxAge: number;
+  interpolate: number;
+  easingFunction: (x: number) => number;
+  pixelColor: string;
+}
 
-    for (let i = 0; i < 20; i++) {
-      const dot = document.createElement('div');
-      dot.style.position = 'absolute';
-      dot.style.width = '8px';
-      dot.style.height = '8px';
-      dot.style.backgroundColor = '#ff00ff'; // Fuchsia color for a pixelated feel
-      dot.style.borderRadius = '0'; // Square pixels
-      dot.style.left = '-20px'; // Start off-screen
-      dot.style.pointerEvents = 'none';
-      dot.style.zIndex = '9999';
-      document.body.appendChild(dot);
-      dots.push(dot);
-    }
+interface PixelTrailProps {
+  gridSize?: number;
+  trailSize?: number;
+  maxAge?: number;
+  interpolate?: number;
+  easingFunction?: (x: number) => number;
+  canvasProps?: Partial<CanvasProps>;
+  glProps?: WebGLContextAttributes & { powerPreference?: string };
+  gooeyFilter?: { id: string; strength: number };
+  color?: string;
+  className?: string;
+}
 
-    const draw = () => {
-      let x = cursor.x;
-      let y = cursor.y;
-
-      dots.forEach((dot, index) => {
-        const nextDot = dots[index + 1] || dots[0];
-
-        dot.style.left = x + 'px';
-        dot.style.top = y + 'px';
-
-        const nextX = parseFloat(nextDot.style.left);
-        const nextY = parseFloat(nextDot.style.top);
-
-        x += (nextX - x) * 0.5;
-        y += (nextY - y) * 0.5;
-      });
-    };
-
-    const animationFrame = () => {
-      draw();
-      requestAnimationFrame(animationFrame);
-    };
-
-    const frameId = requestAnimationFrame(animationFrame);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(frameId);
-      dots.forEach(dot => document.body.removeChild(dot));
-    };
-  }, []);
-
-  return null;
+const GooeyFilter: React.FC<GooeyFilterProps> = ({
+  id = "goo-filter",
+  strength = 10,
+}) => {
+  return (
+    <svg className="absolute overflow-hidden z-1">
+      <defs>
+        <filter id={id}>
+          <feGaussianBlur
+            in="SourceGraphic"
+            stdDeviation={strength}
+            result="blur"
+          />
+          <feColorMatrix
+            in="blur"
+            type="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+            result="goo"
+          />
+          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+        </filter>
+      </defs>
+    </svg>
+  );
 };
 
-export default PixelTrail;
+const DotMaterial = shaderMaterial(
+  {
+    resolution: new THREE.Vector2(),
+    mouseTrail: null,
+    gridSize: 100,
+    pixelColor: new THREE.Color("#ffffff"),
+  },
+  /* glsl vertex shader */ `
+    varying vec2 vUv;
+    void main() {
+      gl_Position = vec4(position.xy, 0.0, 1.0);
+    }
+  `,
+  /* glsl fragment shader */ `
+    uniform vec2 resolution;
+    uniform sampler2D mouseTrail;
+    uniform float gridSize;
+    uniform vec3 pixelColor;
+
+    vec2 coverUv(vec2 uv) {
+      vec2 s = resolution.xy / max(resolution.x, resolution.y);
+      vec2 newUv = (uv - 0.5) * s + 0.5;
+      return clamp(newUv, 0.0, 1.0);
+    }
+
+    float sdfCircle(vec2 p, float r) {
+        return length(p - 0.5) - r;
+    }
+
+    void main() {
+      vec2 screenUv = gl_FragCoord.xy / resolution;
+      vec2 uv = coverUv(screenUv);
+
+      vec2 gridUv = fract(uv * gridSize);
+      vec2 gridUvCenter = (floor(uv * gridSize) + 0.5) / gridSize;
+
+      float trail = texture2D(mouseTrail, gridUvCenter).r;
+
+      gl_FragColor = vec4(pixelColor, trail);
+    }
+  `
+);
+
+function Scene({
+  gridSize,
+  trailSize,
+  maxAge,
+  interpolate,
+  easingFunction,
+  pixelColor,
+}: SceneProps) {
+  const size = useThree((s) => s.size);
+  const viewport = useThree((s) => s.viewport);
+
+  const dotMaterial = useMemo(() => new DotMaterial(), []);
+  dotMaterial.uniforms.pixelColor.value = new THREE.Color(pixelColor);
+
+  const [trail, onMove] = useTrailTexture({
+    size: 512,
+    radius: trailSize,
+    maxAge: maxAge,
+    interpolate: interpolate || 0.1,
+    ease: easingFunction || ((x: number) => x),
+  }) as [THREE.Texture | null, (e: ThreeEvent<PointerEvent>) => void];
+
+  if (trail) {
+    trail.minFilter = THREE.NearestFilter;
+    trail.magFilter = THREE.NearestFilter;
+    trail.wrapS = THREE.ClampToEdgeWrapping;
+    trail.wrapT = THREE.ClampToEdgeWrapping;
+  }
+
+  const scale = Math.max(viewport.width, viewport.height) / 2;
+
+  return (
+    <mesh scale={[scale, scale, 1]} onPointerMove={onMove}>
+      <planeGeometry args={[2, 2]} />
+      <primitive
+        object={dotMaterial}
+        gridSize={gridSize}
+        resolution={[size.width * viewport.dpr, size.height * viewport.dpr]}
+        mouseTrail={trail}
+      />
+    </mesh>
+  );
+}
+
+export default function PixelTrail({
+  gridSize = 40,
+  trailSize = 0.1,
+  maxAge = 250,
+  interpolate = 5,
+  easingFunction = (x: number) => x,
+  canvasProps = {},
+  glProps = {
+    antialias: false,
+    powerPreference: "high-performance",
+    alpha: true,
+  },
+  gooeyFilter,
+  color = "#ffffff",
+  className = "",
+}: PixelTrailProps) {
+  return (
+    <>
+      {gooeyFilter && (
+        <GooeyFilter id={gooeyFilter.id} strength={gooeyFilter.strength} />
+      )}
+      <Canvas
+        {...canvasProps}
+        gl={glProps}
+        className={`absolute z-1 ${className}`}
+        style={gooeyFilter ? { filter: `url(#${gooeyFilter.id})` } : undefined}
+      >
+        <Scene
+          gridSize={gridSize}
+          trailSize={trailSize}
+          maxAge={maxAge}
+          interpolate={interpolate}
+          easingFunction={easingFunction}
+          pixelColor={color}
+        />
+      </Canvas>
+    </>
+  );
+}
