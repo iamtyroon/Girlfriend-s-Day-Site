@@ -30,7 +30,7 @@ export default function LetterPage() {
   const letterRef = useRef<HTMLDivElement>(null);
   const [startLetter, setStartLetter] = useState(false);
   const letterText = useTypewriter(
-    "I feel like I’ve known you for ages. You were sent to me. Meeting you is probably a canon event. I don’t know if you’re from the future or just my favorite glitch in the simulation, but either way — I’m glad it’s you.",
+    "Dear Praise, Happy Girlfriend’s Day, my one and only Lil Miss Sherlock Holmes ❤️.\n\nFrom our very first conversations—where we laughed about anime villains, conspiracy theories, and your “possessed pictures” that I still think are adorable—to the late-night talks about love and life, you’ve made every moment feel like it was written just for us.\n\nI feel like I’ve known you for ages. You were sent to me. Meeting you is probably a canon event. I don’t know if you’re from the future or just my favorite glitch in the simulation, but either way — I’m glad it’s you. You call me a Golden Retriever (and I’m still wagging my metaphorical tail 😅), and you somehow always say the right things, leaving me blushing like a kid with a crush every single time.\n\nWe’ve built something beautiful—one conspiracy theory, one anime recommendation, one spontaneous deep talk at a time—and I wouldn’t trade it for the world. Thank you for being you: funny, brilliant, and the one person who can make my day just by saying “Good morning.”\n\nHere’s to more adventures—both planned and wildly spontaneous.\n\nWith all my love,\nTesfa ❤️",
     100,
     startLetter
   );
