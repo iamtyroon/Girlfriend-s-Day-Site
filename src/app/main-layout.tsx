@@ -20,6 +20,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         if (typeof window !== 'undefined') {
             audioRef.current = new Audio('/assets/audio/pixel-main-theme.mp3');
             audioRef.current.loop = true;
+            audioRef.current.volume = 0.2; // Set volume to 20%
             
             // Attempt to play the audio
             const playPromise = audioRef.current.play();
