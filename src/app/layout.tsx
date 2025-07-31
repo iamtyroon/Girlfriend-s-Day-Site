@@ -1,8 +1,6 @@
 import type {Metadata} from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster";
-import CursorTracker from '@/components/cursor-tracker';
-import GlobalEffectsLoader from '@/components/global-effects-loader';
+import ClientBody from '@/components/ClientBody';
 
 export const metadata: Metadata = {
   title: 'A Canon Event',
@@ -21,14 +19,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased">
-        <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
-          <CursorTracker />
-          <GlobalEffectsLoader />
-          {children}
-          <Toaster />
-        </div>
-      </body>
+      <ClientBody>
+        {children}
+      </ClientBody>
     </html>
   );
 }
