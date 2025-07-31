@@ -5,6 +5,7 @@ import MainLayout from './main-layout';
 import { useState } from 'react';
 import PixelTrail from '@/components/PixelTrail';
 import LightRays from '@/components/ui/LightRays';
+import StageOfUsPage from './stage-of-us/page';
 
 export default function Home() {
     const [showMain, setShowMain] = useState(false);
