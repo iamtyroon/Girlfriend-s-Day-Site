@@ -5,6 +5,7 @@ import React, { useMemo } from "react";
 
 import { shaderMaterial, useTrailTexture } from "@react-three/drei";
 import * as THREE from "three";
+import { cn } from "@/lib/utils";
 
 interface GooeyFilterProps {
   id?: string;
@@ -46,7 +47,7 @@ const GooeyFilter: React.FC<GooeyFilterProps> = ({
   strength = 10,
 }) => {
   return (
-    <svg className="absolute overflow-hidden z-[-1]">
+    <svg className="pointer-events-none absolute inset-0 z-[-1] h-full w-full overflow-hidden">
       <defs>
         <filter id={id}>
           <feGaussianBlur
@@ -172,8 +173,8 @@ export default function PixelTrail({
   eventSource,
 }: PixelTrailProps) {
   const getEventSource = () => {
-    if (eventSource) return eventSource;
-    if (typeof window !== "undefined") return { current: document.body };
+    if (eventSource?.current) return eventSource;
+    if (typeof window !== "undefined") return { current: window.document.documentElement };
     return undefined;
   };
   
@@ -185,9 +186,8 @@ export default function PixelTrail({
       <Canvas
         {...canvasProps}
         gl={glProps}
-        className={`absolute ${className}`}
+        className={cn("pointer-events-none fixed inset-0", className)}
         style={{
-          pointerEvents: "none",
           zIndex: 9999,
           ...(gooeyFilter ? { filter: `url(#${gooeyFilter.id})` } : {}),
         }}

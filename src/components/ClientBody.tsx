@@ -11,8 +11,7 @@ export default function ClientBody({ children }: { children: React.ReactNode }) 
 
   return (
     <body className="font-body antialiased">
-      <div ref={mainRef} style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
-        <PixelTrail
+       <PixelTrail
           gridSize={50}
           trailSize={0.1}
           maxAge={250}
@@ -20,6 +19,7 @@ export default function ClientBody({ children }: { children: React.ReactNode }) 
           color="#9323c7"
           gooeyFilter={{ id: "custom-goo-filter", strength: 2 }}
         />
+      <div ref={mainRef} style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
         <CursorTracker />
         <GlobalEffectsLoader />
         {children}
