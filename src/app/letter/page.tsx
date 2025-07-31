@@ -66,7 +66,6 @@ export default function LetterPage() {
       <Card className="bg-card border-primary p-5 w-full max-w-2xl mx-auto min-h-[200px]">
         <p className="text-left whitespace-pre-wrap text-lg leading-relaxed">{letterText}</p>
       </Card>
-      <Button className="bg-accent text-accent-foreground mt-6">I'd still choose you.</Button>
     </section>
   );
 }
