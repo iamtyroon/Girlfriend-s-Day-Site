@@ -18,7 +18,7 @@ export default function ClientBody({ children }: { children: React.ReactNode }) 
           trailSize={0.1}
           maxAge={250}
           interpolate={5}
-          color="#fff"
+          color="#9323c7"
           gooeyFilter={{ id: "custom-goo-filter", strength: 2 }}
         />
         <CursorTracker />
