@@ -84,6 +84,24 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    --cursor-x: 50vw;
+    --cursor-y: 50vh;
+  }
+  body:before {
+    content: '';
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    pointer-events: none;
+    background: radial-gradient(
+      circle 12vmax at var(--cursor-x) var(--cursor-y),
+      rgba(255, 255, 255, 0.05),
+      transparent 80%
+    );
+    opacity: 0.5;
+    transition: background 0.2s ease;
+    z-index: 2;
   }
 }
 

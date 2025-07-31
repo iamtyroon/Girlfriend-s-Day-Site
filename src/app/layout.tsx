@@ -18,6 +18,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              document.addEventListener('mousemove', (e) => {
+                document.body.style.setProperty('--cursor-x', e.clientX + 'px');
+                document.body.style.setProperty('--cursor-y', e.clientY + 'px');
+              });
+            `,
+          }}
+        />
       </head>
       <body className="font-body antialiased">
         {children}

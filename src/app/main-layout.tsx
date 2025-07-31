@@ -1,5 +1,4 @@
 "use client"
-import PixelTrailClient from '@/components/pixel-trail-client';
 import { Dock } from '@/components/dock';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -15,7 +14,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
     return (
         <>
-            <PixelTrailClient />
             <div className="bg-background text-foreground min-h-screen">
                 <main className="pb-24">
                     {children}
