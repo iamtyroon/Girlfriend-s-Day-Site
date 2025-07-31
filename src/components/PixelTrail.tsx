@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable react/no-unknown-property */
 import React, { useMemo } from "react";
 import { Canvas, useThree, CanvasProps, ThreeEvent } from "@react-three/fiber";
