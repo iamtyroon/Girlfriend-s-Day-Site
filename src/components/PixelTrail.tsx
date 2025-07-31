@@ -1,11 +1,11 @@
 "use client"
 /* eslint-disable react/no-unknown-property */
-import { Canvas, CanvasProps, ThreeEvent, useThree } from "@react-three/fiber";
-import React, { useMemo } from "react";
-
+import React, { useMemo, useEffect } from "react";
+import { Canvas, useThree, CanvasProps, ThreeEvent } from "@react-three/fiber";
 import { shaderMaterial, useTrailTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { cn } from "@/lib/utils";
+
+// ... (interface definitions remain the same) ...
 
 interface GooeyFilterProps {
   id?: string;
@@ -39,15 +39,15 @@ interface PixelTrailProps {
   gooeyFilter?: { id: string; strength: number };
   color?: string;
   className?: string;
-  eventSource?: React.RefObject<HTMLElement>;
 }
+
 
 const GooeyFilter: React.FC<GooeyFilterProps> = ({
   id = "goo-filter",
   strength = 10,
 }) => {
   return (
-    <svg className="pointer-events-none absolute inset-0 z-[-1] h-full w-full overflow-hidden">
+    <svg className="absolute overflow-hidden z-[-1]">
       <defs>
         <filter id={id}>
           <feGaussianBlur
@@ -75,13 +75,11 @@ const DotMaterial = shaderMaterial(
     gridSize: 100,
     pixelColor: new THREE.Color("#ffffff"),
   },
-  /* glsl vertex shader */ `
-    varying vec2 vUv;
+  /* glsl */`
     void main() {
       gl_Position = vec4(position.xy, 0.0, 1.0);
-    }
-  `,
-  /* glsl fragment shader */ `
+    }`,
+  /* glsl */`
     uniform vec2 resolution;
     uniform sampler2D mouseTrail;
     uniform float gridSize;
@@ -91,10 +89,6 @@ const DotMaterial = shaderMaterial(
       vec2 s = resolution.xy / max(resolution.x, resolution.y);
       vec2 newUv = (uv - 0.5) * s + 0.5;
       return clamp(newUv, 0.0, 1.0);
-    }
-
-    float sdfCircle(vec2 p, float r) {
-        return length(p - 0.5) - r;
     }
 
     void main() {
@@ -107,8 +101,7 @@ const DotMaterial = shaderMaterial(
       float trail = texture2D(mouseTrail, gridUvCenter).r;
 
       gl_FragColor = vec4(pixelColor, trail);
-    }
-  `
+    }`
 );
 
 function Scene({
@@ -123,7 +116,10 @@ function Scene({
   const viewport = useThree((s) => s.viewport);
 
   const dotMaterial = useMemo(() => new DotMaterial(), []);
-  dotMaterial.uniforms.pixelColor.value = new THREE.Color(pixelColor);
+  
+  useEffect(() => {
+    dotMaterial.uniforms.pixelColor.value.set(pixelColor);
+  }, [pixelColor, dotMaterial]);
 
   const [trail, onMove] = useTrailTexture({
     size: 512,
@@ -136,15 +132,11 @@ function Scene({
   if (trail) {
     trail.minFilter = THREE.NearestFilter;
     trail.magFilter = THREE.NearestFilter;
-    trail.wrapS = THREE.ClampToEdgeWrapping;
-    trail.wrapT = THREE.ClampToEdgeWrapping;
   }
 
-  const scale = Math.max(viewport.width, viewport.height) / 2;
-
   return (
-    <mesh scale={[scale, scale, 1]} onPointerMove={onMove}>
-      <planeGeometry args={[2, 2]} />
+    <mesh onPointerMove={onMove}>
+      <planeGeometry args={[viewport.width, viewport.height]} />
       <primitive
         object={dotMaterial}
         gridSize={gridSize}
@@ -170,14 +162,7 @@ export default function PixelTrail({
   gooeyFilter,
   color = "#ffffff",
   className = "",
-  eventSource,
 }: PixelTrailProps) {
-  const getEventSource = () => {
-    if (eventSource?.current) return eventSource;
-    if (typeof window !== "undefined") return { current: window.document.documentElement };
-    return undefined;
-  };
-  
   return (
     <>
       {gooeyFilter && (
@@ -186,12 +171,17 @@ export default function PixelTrail({
       <Canvas
         {...canvasProps}
         gl={glProps}
-        className={cn("pointer-events-none fixed inset-0", className)}
         style={{
-          zIndex: 9999,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 100, // High z-index to ensure it's on top
           ...(gooeyFilter ? { filter: `url(#${gooeyFilter.id})` } : {}),
         }}
-        eventSource={getEventSource()}
+        orthographic
       >
         <Scene
           gridSize={gridSize}
