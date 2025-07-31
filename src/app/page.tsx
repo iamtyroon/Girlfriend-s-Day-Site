@@ -1,9 +1,9 @@
 "use client";
 
-import CanonEvent from '@/components/canon-event';
 import MainLayout from './main-layout';
 import { useState } from 'react';
-import StageOfUsPage from './stage-of-us/page';
+import CanonEvent from '@/components/canon-event';
+import LetterPage from './letter/page';
 
 export default function Home() {
     const [showMain, setShowMain] = useState(false);
@@ -11,7 +11,7 @@ export default function Home() {
     if (showMain) {
         return (
             <MainLayout>
-                <StageOfUsPage />
+                <LetterPage />
             </MainLayout>
         );
     }

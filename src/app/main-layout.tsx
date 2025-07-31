@@ -1,5 +1,6 @@
 "use client"
 import { Dock } from '@/components/dock';
+import { useEffect, useRef } from 'react';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     const navItems = [
@@ -11,6 +12,35 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         { href: "/gallery-wall", title: "Gallery Wall", icon: "/assets/icons/butterfly.png" },
         { href: "/settings", title: "Settings", icon: "/assets/icons/cog.png" },
     ];
+    
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        // Ensure this only runs on the client
+        if (typeof window !== 'undefined') {
+            audioRef.current = new Audio('/assets/audio/pixel-main-theme.mp3');
+            audioRef.current.loop = true;
+            
+            // Attempt to play the audio
+            const playPromise = audioRef.current.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay started!
+                }).catch(error => {
+                    // Autoplay was prevented.
+                    console.log("Autoplay prevented: ", error);
+                    // You might want to show a "Click to enable sound" button here.
+                });
+            }
+        }
+        
+        return () => {
+            // Cleanup: pause and nullify on component unmount
+            audioRef.current?.pause();
+            audioRef.current = null;
+        };
+    }, []);
 
     return (
         <>
