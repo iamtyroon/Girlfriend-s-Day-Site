@@ -4,9 +4,15 @@ import Masonry from "@/components/ui/masonry";
 
 export default function SoftSidePage() {
   const photoFilenames = [
-    'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 
-    'photo4.jpg', 'photo5.jpg', 'photo6.jpg',
-    'photo7.jpg', 'photo8.jpg', 'photo9.jpg',
+    'IMG_0134.jpg',
+    'IMG_0135.jpg',
+    'IMG_0136.jpg',
+    'IMG_0138.jpg',
+    'IMG_0140.jpg',
+    'IMG_0142.jpg',
+    'IMG_0143.jpg',
+    'IMG_0144.jpg',
+    'IMG_0145.jpg',
   ];
 
   const heights = [400, 550, 600, 450, 500, 700, 420, 580, 480];
