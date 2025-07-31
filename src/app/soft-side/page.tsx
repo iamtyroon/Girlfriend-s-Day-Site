@@ -1,38 +1,41 @@
 "use client";
 
-import Image from 'next/image';
-import { Card } from '@/components/ui/card';
+import Masonry from "@/components/ui/masonry";
 
 export default function SoftSidePage() {
-  // Add the actual filenames of her photos to this array.
-  // For example: ['praise1.jpg', 'praise2.png', 'another-photo.jpeg']
-  // The paths will be relative to /assets/photos/you being you/
   const photoFilenames = [
     'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 
     'photo4.jpg', 'photo5.jpg', 'photo6.jpg',
     'photo7.jpg', 'photo8.jpg', 'photo9.jpg',
   ];
 
+  const heights = [400, 550, 600, 450, 500, 700, 420, 580, 480];
+
+  const items = photoFilenames.map((filename, index) => {
+    const imgPath = `/assets/photos/you being you/${filename}`;
+    return {
+      id: filename,
+      img: imgPath,
+      url: imgPath,
+      height: heights[index % heights.length], 
+    };
+  });
+  
   return (
     <section id="soft-side" className="py-16 px-4">
       <h2 className="text-3xl font-bold text-accent mb-8 text-center">The Soft Side of You</h2>
-      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4 max-w-6xl mx-auto">
-        {photoFilenames.map((filename, index) => (
-          <div key={index} className="break-inside-avoid">
-            <Card className="overflow-hidden border-2 border-primary/50 hover:border-accent transition-all duration-300 shadow-lg hover:shadow-accent/30">
-              <Image
-                src={`/assets/photos/you being you/${filename}`}
-                alt={`A photo of Praise ${index + 1}`}
-                width={500}
-                height={500}
-                className="w-full h-auto object-cover"
-                data-ai-hint="woman portrait"
-                // In case an image fails to load, this will hide the broken image icon
-                onError={(e) => (e.currentTarget.style.display = 'none')}
-              />
-            </Card>
-          </div>
-        ))}
+      <div className="h-[200vh]">
+        <Masonry
+          items={items}
+          ease="power3.out"
+          duration={0.6}
+          stagger={0.05}
+          animateFrom="bottom"
+          scaleOnHover={true}
+          hoverScale={1.05}
+          blurToFocus={true}
+          colorShiftOnHover={false}
+        />
       </div>
     </section>
   );
