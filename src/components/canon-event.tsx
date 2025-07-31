@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import LightRays from './ui/LightRays';
 
 // --- Typewriter Hook ---
 const useTypewriter = (text: string, speed = 100, start = false) => {
@@ -94,7 +95,19 @@ const LandingScene = ({ onStart }: { onStart: () => void }) => {
     }, []);
 
     return (
-        <div className="h-screen flex flex-col justify-center items-center text-center p-4">
+        <div className="h-screen flex flex-col justify-center items-center text-center p-4 relative">
+            <LightRays
+                raysOrigin="top-center"
+                raysColor="#00ffff"
+                raysSpeed={1.5}
+                lightSpread={0.8}
+                rayLength={1.2}
+                followMouse={true}
+                mouseInfluence={0.1}
+                noiseAmount={0.1}
+                distortion={0.05}
+                className="custom-rays"
+              />
             <Image src="/assets/gifs/bouquet.gif" alt="Pixel Bouquet" width={300} height={300} data-ai-hint="pixel bouquet" />
             <h1 className="text-3xl md:text-4xl mt-5 min-h-[4rem]">{titleText}</h1>
             <Button onClick={onStart} className="bg-primary text-primary-foreground border-2 border-foreground mt-5 animate-fade-in animation-delay-3000">START</Button>
