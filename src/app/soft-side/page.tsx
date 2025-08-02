@@ -1,32 +1,19 @@
-"use client";
+import Masonry, { MasonryItem } from "@/components/ui/masonry";
+import { getYouPhotosManifest } from "@/lib/photos";
 
-import Masonry from "@/components/ui/masonry";
+export default async function SoftSidePage() {
+  const manifest = getYouPhotosManifest();
 
-export default function SoftSidePage() {
-  const photoFilenames = [
-    'IMG_0134.jpg',
-    'IMG_0135.jpg',
-    'IMG_0136.jpg',
-    'IMG_0138.jpg',
-    'IMG_0140.jpg',
-    'IMG_0142.jpg',
-    'IMG_0143.jpg',
-    'IMG_0144.jpg',
-    'IMG_0145.jpg',
-  ];
+  const approxHeights = [420, 520, 600, 480, 560, 640, 500, 580, 460];
 
-  const heights = [400, 550, 600, 450, 500, 700, 420, 580, 480];
+  const items: MasonryItem[] = manifest.map((p, idx) => ({
+    id: p.id,
+    img: p.src,
+    url: p.src,
+    alt: p.alt,
+    height: approxHeights[idx % approxHeights.length],
+  }));
 
-  const items = photoFilenames.map((filename, index) => {
-    const imgPath = `/assets/photos/you being you/${filename}`;
-    return {
-      id: filename,
-      img: imgPath,
-      url: imgPath,
-      height: heights[index % heights.length], 
-    };
-  });
-  
   return (
     <section id="soft-side" className="py-16 px-4">
       <h2 className="text-3xl font-bold text-accent mb-8 text-center">The Soft Side of You</h2>

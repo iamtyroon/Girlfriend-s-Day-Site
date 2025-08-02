@@ -139,6 +139,8 @@ const LightRays: React.FC<LightRaysProps> = ({
       const gl = renderer.gl;
       gl.canvas.style.width = "100%";
       gl.canvas.style.height = "100%";
+      // Ensure the WebGL canvas never intercepts input
+      gl.canvas.style.pointerEvents = "none";
 
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);

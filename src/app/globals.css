@@ -77,7 +77,7 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
@@ -86,6 +86,7 @@ body {
     @apply bg-background text-foreground;
     --cursor-x: 50vw;
     --cursor-y: 50vh;
+    --z-effects: 9999;
   }
   body:before {
     content: '';
@@ -101,29 +102,75 @@ body {
     );
     opacity: 0.5;
     transition: background 0.2s ease;
-    z-index: 2;
+    z-index: 2; /* content glow below overlay effects */
   }
 }
-
+ 
+/* Global full-viewport effects overlay */
+.effects-overlay {
+  position: fixed;
+  inset: 0;
+  /* Force a very high stacking layer above all app UI */
+  z-index: 2147483647; /* max 32-bit int to beat any app z-index */
+  pointer-events: none; /* keep app interactive */
+  contain: layout paint size;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+.effects-overlay .effects-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.effects-overlay .effects-rays {
+  z-index: 0; /* underlay */
+}
+.effects-overlay .effects-trail {
+  z-index: 1; /* overlay above rays */
+}
+/* Ensure any canvases/SVGs inside overlay occupy the full viewport and never create their own stacking quirks */
+.effects-overlay canvas,
+.effects-overlay svg {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  pointer-events: none !important;
+}
+ 
+/* Make sure overlay and everything inside it never intercepts input */
+.effects-overlay,
+.effects-overlay * {
+  touch-action: none;
+}
+.effects-overlay > *,
+.effects-overlay .effects-layer > * {
+  pointer-events: none !important;
+}
+ 
 .pixelated {
   image-rendering: pixelated;
 }
-
+ 
 @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
-
+ 
 .animate-float {
     animation: float 3s ease-in-out infinite;
 }
-
+ 
 @keyframes bloom-flower {
     0% { transform: scale(0.8); }
     50% { transform: scale(1); }
     100% { transform: scale(0.8); }
 }
-
+ 
 .animate-bloom-flower {
     animation: bloom-flower 5s infinite;
 }

@@ -3,7 +3,10 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import CursorTracker from '@/components/cursor-tracker';
 import GlobalEffectsLoader from '@/components/global-effects-loader';
-import PixelTrail from '@/components/PixelTrail';
+
+// Stagewise toolbar (Next.js) - renders only in development and on the client
+import { StagewiseToolbar } from '@stagewise/toolbar-next';
+import ReactPlugin from '@stagewise-plugins/react';
 
 export const metadata: Metadata = {
   title: 'A Canon Event',
@@ -23,18 +26,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <PixelTrail
-          color="#9323c7"
-          gooeyFilter={{ id: "custom-goo-filter", strength: 2 }}
-          gridSize={50}
-          trailSize={0.1}
-          maxAge={250}
-          interpolate={5}
-        />
         <CursorTracker />
+        {/* Global overlay with LightRays (underlay) + PixelTrail (overlay), persists across routes */}
         <GlobalEffectsLoader />
         {children}
         <Toaster />
+        {/* Stagewise toolbar mounts once at app root; dev-only behavior handled by the package */}
+        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
       </body>
     </html>
   );

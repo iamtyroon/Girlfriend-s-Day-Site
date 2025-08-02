@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { gsap } from "gsap";
+import NextImage from "next/image";
 
 const useMedia = (
   queries: string[],
@@ -22,13 +23,12 @@ const useMedia = (
   useEffect(() => {
     const handler = () => setValue(get);
     window.addEventListener("resize", handler);
-    setValue(get); // Set initial value
+    setValue(get);
     return () => window.removeEventListener("resize", handler);
   }, [queries, values, defaultValue]);
 
   return value;
 };
-
 
 const useMeasure = <T extends HTMLElement>() => {
   const ref = useRef<T | null>(null);
@@ -52,7 +52,13 @@ const preloadImages = async (urls: string[]): Promise<void> => {
     urls.map(
       (src) =>
         new Promise<void>((resolve) => {
-          const img = new Image();
+          const ImgCtor = typeof window !== "undefined" ? window.Image : null;
+          if (!ImgCtor) {
+            // On server, immediately resolve
+            resolve();
+            return;
+          }
+          const img = new ImgCtor();
           img.src = src;
           img.onload = img.onerror = () => resolve();
         })
@@ -60,15 +66,16 @@ const preloadImages = async (urls: string[]): Promise<void> => {
   );
 };
 
-interface Item {
+export interface MasonryItem {
   id: string;
-  img: string;
-  url: string;
-  height: number;
+  img: string; // public path (/assets/...)
+  url: string; // click-through URL
+  height: number; // approximate height used for layout estimation
+  alt?: string;
 }
 
 interface MasonryProps {
-  items: Item[];
+  items: MasonryItem[];
   ease?: string;
   duration?: number;
   stagger?: number;
@@ -91,12 +98,7 @@ const Masonry: React.FC<MasonryProps> = ({
   colorShiftOnHover = false,
 }) => {
   const columns = useMedia(
-    [
-      "(min-width:1500px)",
-      "(min-width:1000px)",
-      "(min-width:600px)",
-      "(min-width:400px)",
-    ],
+    ["(min-width:1500px)", "(min-width:1000px)", "(min-width:600px)", "(min-width:400px)"],
     [5, 4, 3, 2],
     1
   );
@@ -111,9 +113,7 @@ const Masonry: React.FC<MasonryProps> = ({
     let direction = animateFrom;
     if (animateFrom === "random") {
       const dirs = ["top", "bottom", "left", "right"];
-      direction = dirs[
-        Math.floor(Math.random() * dirs.length)
-      ] as typeof animateFrom;
+      direction = dirs[Math.floor(Math.random() * dirs.length)] as typeof animateFrom;
     }
 
     switch (direction) {
@@ -137,7 +137,7 @@ const Masonry: React.FC<MasonryProps> = ({
 
   useEffect(() => {
     if (items && items.length > 0) {
-        preloadImages(items.map((i) => i.img)).then(() => setImagesReady(true));
+      preloadImages(items.map((i) => i.img)).then(() => setImagesReady(true));
     }
   }, [items]);
 
@@ -151,7 +151,8 @@ const Masonry: React.FC<MasonryProps> = ({
     return items.map((child) => {
       const col = colHeights.indexOf(Math.min(...colHeights));
       const x = col * (columnWidth + gap);
-      const height = child.height / 2;
+      // Use provided approximate height; if none, fallback
+      const height = child.height > 0 ? child.height : 400;
       const y = colHeights[col];
 
       colHeights[col] += height + gap;
@@ -207,7 +208,7 @@ const Masonry: React.FC<MasonryProps> = ({
       gsap.to(`[data-key="${id}"]`, {
         scale: hoverScale,
         duration: 0.3,
-        ease: "power2.out"
+        ease: "power2.out",
       });
     }
     if (colorShiftOnHover) {
@@ -221,7 +222,7 @@ const Masonry: React.FC<MasonryProps> = ({
       gsap.to(`[data-key="${id}"]`, {
         scale: 1,
         duration: 0.3,
-        ease: "power2.out"
+        ease: "power2.out",
       });
     }
     if (colorShiftOnHover) {
@@ -242,10 +243,16 @@ const Masonry: React.FC<MasonryProps> = ({
           onMouseEnter={(e) => handleMouseEnter(item.id, e.currentTarget)}
           onMouseLeave={(e) => handleMouseLeave(item.id, e.currentTarget)}
         >
-          <div
-            className="relative w-full h-full bg-cover bg-center rounded-[10px] shadow-[0px_10px_50px_-10px_rgba(0,0,0,0.2)] uppercase text-[10px] leading-[10px]"
-            style={{ backgroundImage: `url(${item.img})` }}
-          >
+          <div className="relative w-full h-full rounded-[10px] shadow-[0px_10px_50px_-10px_rgba(0,0,0,0.2)] overflow-hidden">
+            <NextImage
+              src={item.img}
+              alt={item.alt ?? "Photo"}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1440px) 33vw, 25vw"
+              priority={false}
+              loading="lazy"
+              style={{ objectFit: "cover" }}
+            />
             {colorShiftOnHover && (
               <div className="color-overlay absolute inset-0 rounded-[10px] bg-gradient-to-tr from-pink-500/50 to-sky-500/50 opacity-0 pointer-events-none" />
             )}
