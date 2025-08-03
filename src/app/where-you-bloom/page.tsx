@@ -72,9 +72,9 @@ const CountdownTimer = () => {
 };
 
 
-export default function WhereYouBloomPage() {
+export default function CountdownPage() {
   return (
-    <section id="where-you-bloom" className="py-16 px-4 h-[80vh] flex flex-col items-center justify-center">
+    <section id="countdown" className="py-16 px-4 h-[80vh] flex flex-col items-center justify-center">
       <h2 className="text-3xl font-bold text-accent mb-12 text-center">Countdown to November 28th</h2>
       <CountdownTimer />
     </section>
