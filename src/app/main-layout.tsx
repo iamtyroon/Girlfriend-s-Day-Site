@@ -1,6 +1,5 @@
 "use client"
 import { Dock } from '@/components/dock';
-import PixelTrail from '@/components/PixelTrail';
 import { useEffect, useRef } from 'react';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -47,15 +46,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     return (
         <>
             <div className="bg-background text-foreground min-h-screen relative overflow-hidden">
-                <div className="absolute inset-0 z-0">
-                    <PixelTrail
-                        gridSize={72}
-                        trailSize={0.05}
-                        maxAge={120}
-                        interpolate={5}
-                        color="#ffffff"
-                    />
-                </div>
                 <main className="pb-24 relative z-10">
                     {children}
                 </main>
