@@ -10,6 +10,7 @@ export type PhotoEntry = {
   id: string;
   src: string; // public URL path, e.g. /assets/photos/you/...
   alt: string;
+  date?: string; // The parent directory name, assumed to be the date
 };
 
 const PUBLIC_DIR = path.join(process.cwd(), "public");
@@ -61,10 +62,16 @@ export function getYouPhotosManifest(): PhotoEntry[] {
     const relFromPublic = path.relative(PUBLIC_DIR, abs).split(path.sep).join("/");
     const url = `/${relFromPublic}`;
     const alt = humanizeFilename(abs);
+    const date = path.basename(path.dirname(abs));
+    
+    // Check if the parent directory is the root 'you' directory
+    const isRootPhoto = path.dirname(abs) === ROOT_PHOTOS_DIR;
+
     return {
       id: relFromPublic, // stable key
       src: url,
       alt,
+      date: isRootPhoto ? undefined : date,
     };
   });
   entries.sort((a, b) => a.src.localeCompare(b.src));
