@@ -1,37 +1,82 @@
 "use client";
 
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
+
+const CountdownTimer = () => {
+  const calculateTimeLeft = () => {
+    const now = new Date();
+    let year = now.getFullYear();
+    let countdownDate = new Date(year, 10, 28); // Month is 0-indexed, so 10 is November
+
+    if (now > countdownDate) {
+      // If the date has passed for this year, count down to next year's date
+      countdownDate = new Date(year + 1, 10, 28);
+    }
+
+    const difference = countdownDate.getTime() - now.getTime();
+
+    let timeLeft = {};
+
+    if (difference > 0) {
+      timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    }
+
+    return timeLeft;
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  });
+
+  const timerComponents: JSX.Element[] = [];
+
+  Object.keys(timeLeft).forEach((interval) => {
+    if (!timeLeft[interval as keyof typeof timeLeft]) {
+        return;
+    }
+
+    timerComponents.push(
+      <div key={interval} className="text-center p-4 bg-card rounded-lg shadow-lg border border-primary">
+        <div className="text-5xl font-bold text-accent">
+          {timeLeft[interval as keyof typeof timeLeft]}
+        </div>
+        <div className="text-sm uppercase mt-2 text-foreground">
+          {interval}
+        </div>
+      </div>
+    );
+  });
+
+  return (
+    <div className="flex justify-center items-center h-full">
+      {timerComponents.length ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {timerComponents}
+        </div>
+      ) : (
+        <span className="text-2xl text-accent">The wait is over!</span>
+      )}
+    </div>
+  );
+};
+
 
 export default function WhereYouBloomPage() {
   return (
-    <section id="where-you-bloom" className="py-16 px-4">
-      <h2 className="text-3xl font-bold text-accent mb-8 text-center">Where You Bloom</h2>
-      <div className="flex justify-around flex-wrap">
-        {[
-          'Your bravery in sharing your stories is one of the most beautiful things about you.',
-          "You have the best taste in shows. 'Bones', 'Love, Death & Robots', 'BoJack'... all amazing.",
-          "Your quirks are my favorite things. The 'AI from the future' and 'golden retriever energy'... never change.",
-        ].map((tip, index) => (
-          <div key={index} className="relative m-4 group">
-            <Image
-              src="/assets/icons/flower.png"
-              alt={`Flower ${index + 1}`}
-              width={225}
-              height={225}
-              className="animate-bloom-flower"
-              data-ai-hint="flower"
-            />
-            <div
-              className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-[50px] h-[50px] bg-no-repeat bg-cover transition-transform group-hover:scale-125 group-hover:rotate-12 cursor-pointer"
-              style={{ backgroundImage: "url('/assets/icons/butterfly.png')" }}
-              data-ai-hint="butterfly"
-            ></div>
-            <div className="absolute bottom-[160px] left-1/2 -translate-x-1/2 bg-white text-black p-2 rounded-lg text-xs w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-              {tip}
-            </div>
-          </div>
-        ))}
-      </div>
+    <section id="where-you-bloom" className="py-16 px-4 h-[80vh] flex flex-col items-center justify-center">
+      <h2 className="text-3xl font-bold text-accent mb-12 text-center">Countdown to November 28th</h2>
+      <CountdownTimer />
     </section>
   );
 }
