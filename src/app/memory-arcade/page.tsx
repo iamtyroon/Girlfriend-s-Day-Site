@@ -1,62 +1,42 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { getYouPhotosManifest, type PhotoEntry } from "@/lib/photos";
-import Image from "next/image";
+"use client";
+import RollingGallery from '@/components/ui/RollingGallery';
+import { getPhotoFolders, getPhotosByFolder } from '@/lib/photos';
+import { useEffect, useState } from 'react';
 
-export default async function MemoryArcadePage() {
-  const manifest = await getYouPhotosManifest();
+export default function MemoryArcadePage() {
+  const [folders, setFolders] = useState<string[]>([]);
+  const [photosByFolder, setPhotosByFolder] = useState<Record<string, { src: string; alt: string }[]>>({});
 
-  // Group photos by date (assuming folder is the date)
-  const photosByDate = manifest.reduce((acc, photo) => {
-    const date = photo.date || 'Unsorted';
-    if (!acc[date]) {
-      acc[date] = [];
+  useEffect(() => {
+    async function fetchData() {
+      const folderNames = await getPhotoFolders();
+      const filteredFolders = folderNames.filter(folder => folder !== 'you');
+      setFolders(filteredFolders);
+
+      const photosData: Record<string, { src: string; alt: string }[]> = {};
+      for (const folder of filteredFolders) {
+        const photos = await getPhotosByFolder(folder);
+        photosData[folder] = photos;
+      }
+      setPhotosByFolder(photosData);
     }
-    acc[date].push(photo);
-    return acc;
-  }, {} as Record<string, PhotoEntry[]>);
-
-  // Sort dates, with 'Unsorted' at the end
-  const sortedDates = Object.keys(photosByDate).sort((a, b) => {
-    if (a === 'Unsorted') return 1;
-    if (b === 'Unsorted') return -1;
-    // Assuming YYYY-MM-DD format for sorting
-    return b.localeCompare(a);
-  });
+    fetchData();
+  }, []);
 
   return (
     <section id="memory-arcade" className="py-16 px-4">
       <h2 className="text-3xl font-bold text-accent mb-8 text-center">Memory Arcade</h2>
-      <div className="max-w-4xl mx-auto">
-        <Accordion type="single" collapsible className="w-full">
-          {sortedDates.map((date) => (
-            <AccordionItem value={date} key={date}>
-              <AccordionTrigger className="text-xl hover:no-underline">
-                {date}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
-                  {photosByDate[date].map((photo) => (
-                    <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border-2 border-primary shadow-lg">
-                      <Image
-                        src={photo.src}
-                        alt={photo.alt}
-                        fill
-                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        className="object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+      <div className="space-y-12">
+        {folders.map((folder) => (
+          <div key={folder}>
+            <h3 className="text-2xl font-semibold text-primary mb-4 capitalize text-center">{folder.replace(/ /g, ' ')}</h3>
+            <RollingGallery
+              images={photosByFolder[folder]?.map(p => p.src) || []}
+              autoplay={true}
+              pauseOnHover={true}
+            />
+          </div>
+        ))}
       </div>
     </section>
   );

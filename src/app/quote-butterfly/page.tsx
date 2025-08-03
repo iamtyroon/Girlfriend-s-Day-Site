@@ -230,7 +230,7 @@ export default function QuoteButterflyPage() {
         onClick={getRandomQuote}
       >
         <Image
-          src="/assets/gifs/butterfly.gif"
+          src="/assets/icons/butterfly.png"
           alt="Quote Butterfly"
           layout="fill"
           objectFit="contain"
