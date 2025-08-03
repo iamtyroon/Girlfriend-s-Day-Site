@@ -4,9 +4,6 @@ import { Toaster } from "@/components/ui/toaster";
 import CursorTracker from '@/components/cursor-tracker';
 import GlobalEffectsLoader from '@/components/global-effects-loader';
 
-// Stagewise toolbar (Next.js) - renders only in development and on the client
-import { StagewiseToolbar } from '@stagewise/toolbar-next';
-import ReactPlugin from '@stagewise-plugins/react';
 
 export const metadata: Metadata = {
   title: 'A Canon Event',
@@ -31,8 +28,6 @@ export default function RootLayout({
         <GlobalEffectsLoader />
         {children}
         <Toaster />
-        {/* Stagewise toolbar mounts once at app root; dev-only behavior handled by the package */}
-        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
       </body>
     </html>
   );
