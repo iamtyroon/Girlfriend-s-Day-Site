@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import CursorTracker from '@/components/cursor-tracker';
 import GlobalEffectsLoader from '@/components/global-effects-loader';
+import { PixelTrailSettingsProvider } from '@/context/pixel-trail-settings-context';
 
 
 export const metadata: Metadata = {
@@ -23,11 +24,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <CursorTracker />
-        {/* Global overlay with LightRays (underlay) + PixelTrail (overlay), persists across routes */}
-        <GlobalEffectsLoader />
-        {children}
-        <Toaster />
+        <PixelTrailSettingsProvider>
+          <CursorTracker />
+          {/* Global overlay with LightRays (underlay) + PixelTrail (overlay), persists across routes */}
+          <GlobalEffectsLoader />
+          {children}
+          <Toaster />
+        </PixelTrailSettingsProvider>
       </body>
     </html>
   );

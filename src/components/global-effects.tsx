@@ -1,7 +1,9 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
+import { usePixelTrailSettings } from "@/context/pixel-trail-settings-context";
 
 // Effects
 import LightRays from "@/components/ui/LightRays";
@@ -9,6 +11,7 @@ const PixelTrail = dynamic(() => import("@/components/PixelTrail"), { ssr: false
 
 export default function GlobalEffects() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const { settings } = usePixelTrailSettings();
 
   // Promote the overlay to its own layer for stable performance.
   useEffect(() => {
@@ -46,11 +49,12 @@ export default function GlobalEffects() {
       {/* Overlay: pixel trail (alpha). Force non-interactive canvas */}
       <div className="effects-layer effects-trail">
         <PixelTrail
-          color="#a8fff7"
-          gridSize={42}
-          trailSize={0.12}
-          maxAge={260}
-          interpolate={5}
+          color={settings.color}
+          gridSize={settings.gridSize}
+          trailSize={settings.trailSize}
+          maxAge={settings.maxAge}
+          interpolate={settings.interpolate}
+          gooeyFilter={settings.gooey ? { id: 'goo-filter', strength: settings.gooeyStrength } : undefined}
           // Ensure the R3F canvas does not intercept input
           canvasProps={{
             className: "w-full h-full",
