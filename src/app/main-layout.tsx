@@ -10,7 +10,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         { href: "/countdown", title: "The Countdown", icon: "/assets/icons/flower.png" },
         { href: "/letter", title: "A Note for You", icon: "/assets/images/scroll.png" },
         { href: "/memory-arcade", title: "Memory Arcade", icon: "/assets/icons/arcade.png" },
-        { href: "/gallery-wall", title: "Gallery Wall", icon: "/assets/icons/butterfly.png" },
+        { href: "/quote-butterfly", title: "Quote Butterfly", icon: "/assets/icons/butterfly.png" },
         { href: "/settings", title: "Settings", icon: "/assets/icons/cog.png" },
     ];
     
