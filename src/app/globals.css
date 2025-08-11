@@ -106,51 +106,6 @@ body {
   }
 }
  
-/* Global full-viewport effects overlay */
-.effects-overlay {
-  position: fixed;
-  inset: 0;
-  /* Force a very high stacking layer above all app UI */
-  z-index: 2147483647; /* max 32-bit int to beat any app z-index */
-  pointer-events: none; /* keep app interactive */
-  contain: layout paint size;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-.effects-overlay .effects-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  will-change: transform, opacity;
-}
-.effects-overlay .effects-rays {
-  z-index: 0; /* underlay */
-}
-.effects-overlay .effects-trail {
-  z-index: 1; /* overlay above rays */
-}
-/* Ensure any canvases/SVGs inside overlay occupy the full viewport and never create their own stacking quirks */
-.effects-overlay canvas,
-.effects-overlay svg {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-  pointer-events: none !important;
-}
- 
-/* Make sure overlay and everything inside it never intercepts input */
-.effects-overlay,
-.effects-overlay * {
-  touch-action: none;
-}
-.effects-overlay > *,
-.effects-overlay .effects-layer > * {
-  pointer-events: none !important;
-}
  
 .pixelated {
   image-rendering: pixelated;

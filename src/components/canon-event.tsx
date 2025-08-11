@@ -1,37 +1,51 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import LightRays from './ui/LightRays';
+import dynamic from 'next/dynamic';
 
-// --- Typewriter Hook ---
+// Lazy load LightRays for performance
+const LightRays = dynamic(() => import('./ui/LightRays'), { 
+  ssr: false,
+  loading: () => null
+});
+
+// --- Optimized Typewriter Hook ---
 const useTypewriter = (text: string, speed = 100, start = false) => {
     const [displayText, setDisplayText] = useState('');
     
     useEffect(() => {
-        setDisplayText(''); // Reset on text change
-        if (start) {
-            let i = 0;
-            const typing = setInterval(() => {
-                if (i < text.length) {
-                    setDisplayText(prev => prev + text.charAt(i));
-                    i++;
-                } else {
-                    clearInterval(typing);
-                }
-            }, speed);
-            return () => clearInterval(typing);
+        if (!start) {
+            setDisplayText('');
+            return;
         }
+        
+        let i = 0;
+        let isCancelled = false;
+        
+        const typeChar = () => {
+            if (i < text.length && !isCancelled) {
+                setDisplayText(text.substring(0, i + 1));
+                i++;
+                setTimeout(typeChar, speed);
+            }
+        };
+        
+        typeChar();
+        
+        return () => {
+            isCancelled = true;
+        };
     }, [text, speed, start]);
 
     return displayText;
 };
 
 // --- Onboarding Bear Component ---
-const OnboardingBear = ({ onComplete }: { onComplete: () => void }) => {
+const OnboardingBear = memo(({ onComplete }: { onComplete: () => void }) => {
     const [step, setStep] = useState(0);
     const [isActive, setIsActive] = useState(false);
     const router = useRouter();
@@ -70,7 +84,15 @@ const OnboardingBear = ({ onComplete }: { onComplete: () => void }) => {
             <DialogContent className="bg-card border-primary text-foreground w-[80%] max-w-[500px]">
                 <DialogHeader>
                     <div className="flex justify-center mb-4">
-                        <Image src="/assets/icons/teddy-bear.png" alt="Guide Bear" width={150} height={150} data-ai-hint="teddy bear" />
+                        <Image 
+                            src="/assets/icons/teddy-bear.png" 
+                            alt="Guide Bear" 
+                            width={150} 
+                            height={150} 
+                            data-ai-hint="teddy bear"
+                            priority
+                            loading="eager"
+                        />
                     </div>
                     <DialogTitle className="text-center min-h-[100px]">{typedText}</DialogTitle>
                 </DialogHeader>
@@ -82,12 +104,12 @@ const OnboardingBear = ({ onComplete }: { onComplete: () => void }) => {
             </DialogContent>
         </Dialog>
     );
-};
+});
 
 // --- Landing Scene Component ---
-const LandingScene = ({ onStart }: { onStart: () => void }) => {
+const LandingScene = memo(({ onStart }: { onStart: () => void }) => {
     const [startTyping, setStartTyping] = useState(false);
-    const titleText = useTypewriter("H appy Girlfriend’s Day, Praise 😊❤️", 150, startTyping);
+    const titleText = useTypewriter("Happy Girlfriend's Day, Praise 😊❤️", 150, startTyping);
 
     useEffect(() => {
         const timer = setTimeout(() => setStartTyping(true), 1000);
@@ -96,20 +118,28 @@ const LandingScene = ({ onStart }: { onStart: () => void }) => {
 
     return (
         <div className="h-screen flex flex-col justify-center items-center text-center p-4 relative">
-            <Image src="/assets/gifs/bouquet.gif" alt="Pixel Bouquet" width={300} height={300} data-ai-hint="pixel bouquet" />
+            <Image 
+                src="/assets/gifs/bouquet.gif" 
+                alt="Pixel Bouquet" 
+                width={300} 
+                height={300} 
+                data-ai-hint="pixel bouquet"
+                priority
+                unoptimized // For GIFs
+            />
             <h1 className="text-3xl md:text-4xl mt-5 min-h-[4rem]">{titleText}</h1>
             <Button onClick={onStart} className="bg-primary text-primary-foreground border-2 border-foreground mt-5 animate-fade-in animation-delay-3000">START</Button>
         </div>
     );
-};
+});
 
 export default function CanonEvent({ onEnterMain }: { onEnterMain: () => void}) {
     const [scene, setScene] = useState<'onboarding' | 'landing'>('onboarding');
 
-    const handleStartOnboarding = () => setScene('landing');
-    const handleEnterMain = () => {
+    const handleStartOnboarding = useCallback(() => setScene('landing'), []);
+    const handleEnterMain = useCallback(() => {
         onEnterMain();
-    }
+    }, [onEnterMain]);
    
     if (scene === 'onboarding') {
         return <OnboardingBear onComplete={handleStartOnboarding} />;

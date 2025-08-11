@@ -1,8 +1,15 @@
 "use client"
 import { Dock } from '@/components/dock';
-import { useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy graphics components for better performance
+const LightRays = dynamic(() => import('@/components/ui/LightRays'), { 
+  ssr: false,
+  loading: () => null
+});
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
+    
     const navItems = [
         { href: "/stage-of-us", title: "The Stage of Us", icon: "/assets/icons/music-notes.png" },
         { href: "/soft-side", title: "The Soft Side of You", icon: "/assets/icons/teddy-bear.png" },
@@ -12,39 +19,31 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         { href: "/quote-butterfly", title: "Quote Butterfly", icon: "/assets/icons/butterfly.png" },
         { href: "/settings", title: "Settings", icon: "/assets/icons/cog.png" },
     ];
-    
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    useEffect(() => {
-        // Ensure this only runs on the client
-        if (typeof window !== 'undefined') {
-            audioRef.current = new Audio('/assets/audio/pixel-main-theme.mp3');
-            audioRef.current.loop = true;
-            audioRef.current.volume = 0.2; // Set volume to 20%
-            
-            // Attempt to play the audio
-            const playPromise = audioRef.current.play();
-
-            if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    // Autoplay started!
-                }).catch(error => {
-                    // Autoplay was prevented.
-                    console.log("Autoplay prevented: ", error);
-                    // You might want to show a "Click to enable sound" button here.
-                });
-            }
-        }
-        
-        return () => {
-            // Cleanup: pause and nullify on component unmount
-            audioRef.current?.pause();
-            audioRef.current = null;
-        };
-    }, []);
 
     return (
         <>
+            {/* Background Light Rays */}
+            <div style={{ 
+                position: 'fixed',
+                inset: 0,
+                zIndex: 1,
+                pointerEvents: 'none'
+            }}>
+                <LightRays
+                    className="w-full h-full"
+                    raysOrigin="top-center"
+                    raysColor="#00ffff"
+                    raysSpeed={1.2}
+                    lightSpread={0.9}
+                    rayLength={1.3}
+                    followMouse={true}
+                    mouseInfluence={0.1}
+                    noiseAmount={0.06}
+                    distortion={0.04}
+                />
+            </div>
+
+            
             <div className="bg-background text-foreground min-h-screen relative overflow-hidden">
                 <main className="pb-24 relative z-10">
                     {children}

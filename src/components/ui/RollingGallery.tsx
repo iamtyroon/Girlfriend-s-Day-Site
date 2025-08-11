@@ -33,19 +33,31 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
   images = [],
 }) => {
   const galleryImages = images.length > 0 ? images : IMGS;
+  if (galleryImages.length === 0) return null;
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
 
-  const [isScreenSizeSm, setIsScreenSizeSm] = useState<boolean>(false);
+  const [isScreenSizeSm, setIsScreenSizeSm] = useState<boolean>(
+    typeof window !== 'undefined' && window.innerWidth <= 640
+  );
+
   useEffect(() => {
     const handleResize = () => setIsScreenSizeSm(window.innerWidth <= 640);
     window.addEventListener("resize", handleResize);
-    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const cylinderWidth: number = isScreenSizeSm ? 1100 : 1800;
+  // Make the ring slightly larger so each face can be a bit bigger without overlap
+  const cylinderWidth: number = isScreenSizeSm ? 1500 : 2600; // +100 / +200
   const faceCount: number = galleryImages.length;
-  const faceWidth: number = (cylinderWidth / faceCount) * 1.5;
-  const radius: number = cylinderWidth / (2 * Math.PI);
+
+  // Slightly wider faces while staying inside each angular sector
+  const baseWidth: number = cylinderWidth / Math.max(faceCount, 1);
+  let faceWidth: number = baseWidth * 0.96;              // from 0.95 -> 0.96 for a touch more width
+  // Raise the cap moderately to allow "a bit bigger"
+  faceWidth = Math.min(faceWidth, 600);                  // from 560 -> 600
+
+  // Nudge radius up to maintain clearance as faces grow
+  const radius: number = (cylinderWidth / (2 * Math.PI)) * 1.09; // from 1.08 -> 1.09
 
   const dragFactor: number = 0.05;
   const rotation = useMotionValue(0);
@@ -74,8 +86,7 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
     } else {
       controls.stop();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoplay]);
+  }, [autoplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpdate = (latest: ResolvedValues) => {
     if (typeof latest.rotateY === "number") {
@@ -116,58 +127,75 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
   };
 
   return (
-    <div className="relative h-[500px] w-full overflow-hidden">
-      <div
-        className="absolute top-0 left-0 h-full w-[48px] z-10"
-        style={{
-          background:
-            "linear-gradient(to left, rgba(0,0,0,0) 0%, #060010 100%)",
-        }}
-      />
-      <div
-        className="absolute top-0 right-0 h-full w-[48px] z-10"
-        style={{
-          background:
-            "linear-gradient(to right, rgba(0,0,0,0) 0%, #060010 100%)",
-        }}
-      />
-      <div className="flex h-full items-center justify-center [perspective:1000px] [transform-style:preserve-3d]">
-        <motion.div
-          drag="x"
-          dragElastic={0}
-          onDrag={handleDrag}
-          onDragEnd={handleDragEnd}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          animate={controls}
-          onUpdate={handleUpdate}
+    <>
+      <div className="relative h-[640px] w-full overflow-hidden">
+        <div
+          className="absolute top-0 left-0 h-full w-[48px] z-10"
           style={{
-            transform: transform,
-            rotateY: rotation,
-            width: cylinderWidth,
-            transformStyle: "preserve-3d",
+            background: "linear-gradient(to left, rgba(0,0,0,0) 0%, #060010 100%)",
           }}
-          className="flex min-h-[200px] cursor-grab items-center justify-center [transform-style:preserve-3d]"
-        >
-          {galleryImages.map((url, i) => (
-            <div
-              key={i}
-              className="group absolute flex h-fit items-center justify-center p-[8%] [backface-visibility:hidden] md:p-[6%]"
-              style={{
-                width: `${faceWidth}px`,
-                transform: `rotateY(${(360 / faceCount) * i}deg) translateZ(${radius}px)`,
-              }}
-            >
-              <img
-                src={url}
-                alt="gallery"
-                className="pointer-events-none h-[120px] w-[300px] rounded-[15px] border-[3px] border-white object-cover transition-transform duration-300 ease-out group-hover:scale-105 sm:h-[100px] sm:w-[220px]"
-              />
-            </div>
-          ))}
-        </motion.div>
+        />
+        <div
+          className="absolute top-0 right-0 h-full w-[48px] z-10"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(0,0,0,0) 0%, #060010 100%)",
+          }}
+        />
+        <div className="flex h-full items-center justify-center [perspective:1000px] [transform-style:preserve-3d]">
+          <motion.div
+            drag="x"
+            dragElastic={0}
+            onDrag={handleDrag}
+            onDragEnd={handleDragEnd}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            animate={controls}
+            onUpdate={handleUpdate}
+            style={{
+              transform: transform,
+              rotateY: rotation,
+              width: cylinderWidth,
+              transformStyle: "preserve-3d",
+            }}
+            className="flex min-h-[200px] cursor-grab items-center justify-center [transform-style:preserve-3d]"
+          >
+            {galleryImages.map((url, i) => (
+              <div
+                key={i}
+                className="group absolute flex h-fit items-center justify-center p-2 sm:p-1 [backface-visibility:hidden]"
+                style={{
+                  width: `${faceWidth}px`,
+                  transform: `rotateY(${(360 / faceCount) * i}deg) translateZ(${radius}px)`,
+                }}
+                onClick={() => setSelectedImg(url)}
+              >
+                <img
+                  src={url}
+                  alt="gallery"
+                  className="pointer-events-none w-full max-w-[600px] sm:max-w-[460px] aspect-[16/9] sm:aspect-[9/5] rounded-[15px] border-[3px] border-white object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
       </div>
-    </div>
+      {selectedImg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+          onClick={() => setSelectedImg(null)}
+        >
+          <motion.img
+            src={selectedImg}
+            alt="Selected"
+            className="max-w-[90vw] max-h-[90vh] rounded-lg"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.5, opacity: 0 }}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

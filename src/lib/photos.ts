@@ -65,7 +65,7 @@ export async function getPhotosByFolder(folder: string): Promise<{ src: string; 
   return files
     .filter(file => IMAGE_EXT.has(path.extname(file)))
     .map(file => ({
-      src: `/assets/photos/${folder}/${file}`,
+      src: `/assets/photos/${encodeURIComponent(folder)}/${file}`,
       alt: humanizeFilename(file),
     }));
 }

@@ -4,8 +4,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { memo } from 'react';
 
-export const Dock = ({ navItems }: { navItems: Array<{ href: string; title: string; icon: string }> }) => (
+export const Dock = memo(({ navItems }: { navItems: Array<{ href: string; title: string; icon: string }> }) => (
     <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
         <TooltipProvider>
             <div className="flex items-center justify-center gap-2 bg-card/80 backdrop-blur-md border border-primary rounded-full p-2">
@@ -14,7 +15,13 @@ export const Dock = ({ navItems }: { navItems: Array<{ href: string; title: stri
                         <TooltipTrigger asChild>
                             <Link href={item.href} passHref>
                                 <Button variant="ghost" size="icon" className="rounded-full text-foreground hover:bg-accent hover:text-accent-foreground">
-                                    <Image src={item.icon} alt={item.title} width={30} height={30} />
+                                    <Image 
+                                        src={item.icon} 
+                                        alt={item.title} 
+                                        width={30} 
+                                        height={30}
+                                        loading="lazy"
+                                    />
                                 </Button>
                             </Link>
                         </TooltipTrigger>
@@ -26,4 +33,4 @@ export const Dock = ({ navItems }: { navItems: Array<{ href: string; title: stri
             </div>
         </TooltipProvider>
     </nav>
-);
+));

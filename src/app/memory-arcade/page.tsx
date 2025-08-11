@@ -1,6 +1,5 @@
 "use client";
 import RollingGallery from '@/components/ui/RollingGallery';
-import { getPhotoFolders, getPhotosByFolder } from '@/lib/photos';
 import { useEffect, useState } from 'react';
 
 export default function MemoryArcadePage() {
@@ -9,16 +8,27 @@ export default function MemoryArcadePage() {
 
   useEffect(() => {
     async function fetchData() {
-      const folderNames = await getPhotoFolders();
-      const filteredFolders = folderNames.filter(folder => folder !== 'you');
-      setFolders(filteredFolders);
+      try {
+        const res = await fetch('/api/photos');
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const folderNames = await res.json();
+        setFolders(folderNames);
 
-      const photosData: Record<string, { src: string; alt: string }[]> = {};
-      for (const folder of filteredFolders) {
-        const photos = await getPhotosByFolder(folder);
-        photosData[folder] = photos;
+        const photosData: Record<string, { src: string; alt: string }[]> = {};
+        for (const folder of folderNames) {
+          const photoRes = await fetch(`/api/photos?folder=${folder}`);
+          if (!photoRes.ok) {
+            throw new Error(`HTTP error! status: ${photoRes.status}`);
+          }
+          const photos = await photoRes.json();
+          photosData[folder] = photos;
+        }
+        setPhotosByFolder(photosData);
+      } catch (error) {
+        console.error("Failed to fetch photos:", error);
       }
-      setPhotosByFolder(photosData);
     }
     fetchData();
   }, []);
