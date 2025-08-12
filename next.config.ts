@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
   },
   // Performance optimizations
   experimental: {
-    optimizeCss: true,
     webpackBuildWorker: true,
   },
   // Optimize images
