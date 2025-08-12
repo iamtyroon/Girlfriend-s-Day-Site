@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm view:*)",
+      "Bash(npm install)",
+      "Bash(npm ls:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }
